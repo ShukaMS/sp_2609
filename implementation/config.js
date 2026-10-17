@@ -8,6 +8,6 @@
 //    ※ service_role / secret キーは絶対に貼らないでください(全データを操作できてしまいます)
 // =========================================================
 window.NOKORI_CONFIG = {
-  supabaseUrl: '',
-  supabaseAnonKey: '',
+  supabaseUrl: 'https://zaqznjqqrrewwiinpejr.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphcXpuanFxcnJld3dpaW5wZWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMzIxNTEsImV4cCI6MjEwNzgwODE1MX0.ZA6JenJdSij8K99hW_Eiyl6gG_p-AuCzawPY-yjASVQ',
 };

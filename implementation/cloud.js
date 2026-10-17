@@ -8,7 +8,12 @@
   const cfg = window.NOKORI_CONFIG || {};
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey || !window.supabase || !window.supabase.createClient) return;
 
-  const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  // メールのリンクを押して戻ってきたときに、自動でログイン状態にする
+  const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+    auth: { persistSession: true, detectSessionInUrl: true, flowType: 'implicit' },
+  });
+  // リンクを押したあとに戻ってくるページ(今開いているページ)
+  const RETURN_URL = location.origin + location.pathname;
 
   // 北大のメールアドレス(〜@hokudai.ac.jp、〜@xxx.hokudai.ac.jp)
   const HOKUDAI_EMAIL = /@([a-z0-9-]+\.)*hokudai\.ac\.jp$/i;
@@ -282,7 +287,10 @@
     cloud.login.sending = true;
     cloud.login.error = '';
     renderCloud();
-    const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true, emailRedirectTo: RETURN_URL },
+    });
     cloud.login.sending = false;
     if (error) return setLoginError(errorText(error));
     cloud.login.step = 'code';
@@ -336,9 +344,11 @@
       l.step === 'email'
         ? `<label class="field-label" for="loginEmail">北大のメールアドレス</label>
            <input type="email" id="loginEmail" value="${esc(l.email)}" placeholder="例:xxxx@eis.hokudai.ac.jp" autocomplete="email" inputmode="email">
-           <button type="submit" class="btn btn-primary wide" ${l.sending ? 'disabled' : ''}>${l.sending ? '送っています…' : '確認コードを送る'}</button>`
-        : `<p class="hint"><b>${esc(l.email)}</b> に確認コードを送りました。メールに書かれた数字を入力してください(迷惑メールフォルダも確認してください)。</p>
-           <label class="field-label" for="loginCode">確認コード</label>
+           <button type="submit" class="btn btn-primary wide" ${l.sending ? 'disabled' : ''}>${l.sending ? '送っています…' : 'ログイン用のメールを送る'}</button>`
+        : `<p class="hint"><b>${esc(l.email)}</b> にログイン用のメールを送りました(迷惑メールフォルダも確認してください)。</p>
+           <p class="login-step"><b>メールの「Sign in」リンクを押す</b>と、このアプリが開いてログインできます。</p>
+           <p class="hint">メールに6桁の数字が書かれている場合は、下に入力してもログインできます。</p>
+           <label class="field-label" for="loginCode">確認コード(数字がある場合のみ)</label>
            <input type="text" id="loginCode" value="${esc(l.code)}" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456">
            <button type="submit" class="btn btn-primary wide" ${l.sending ? 'disabled' : ''}>${l.sending ? '確認しています…' : 'ログイン'}</button>
            <button type="button" class="link-btn center" data-cloud="change-email">メールアドレスを入れ直す</button>`;

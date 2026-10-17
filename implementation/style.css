@@ -751,6 +751,14 @@ h1 {
   font-size: 16px;
 }
 .cloud-panel input { background: var(--bg); }
+.login-step {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-size: 14px;
+}
 .cloud-error {
   margin: 0;
   padding: 10px 14px;
