@@ -125,7 +125,7 @@ function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
-    toast('この端末では保存できませんでした');
+    toast('この端末では保存できませんでした!');
   }
 }
 
