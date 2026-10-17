@@ -67,12 +67,212 @@ const RECIPES = [
   { name: 'だし巻き卵', origin: '日本', emoji: '🥚', minutes: 10,
     ingredients: ['たまご|卵'],
     steps: ['卵にだしと醤油を混ぜる', '卵焼き器で少しずつ巻きながら焼く', '形を整えて切る'] },
+  { name: '親子丼', origin: '日本', emoji: '🍚', minutes: 20,
+    ingredients: ['鶏肉|鶏もも|鶏むね', 'たまご|卵', '玉ねぎ'],
+    steps: ['玉ねぎを薄切り、鶏肉を一口大に切る', 'めんつゆと水で煮て、鶏肉に火を通す', '溶き卵を回し入れ、半熟でごはんにのせる'] },
+  { name: '麻婆豆腐', origin: '中国', emoji: '🌶️', minutes: 15,
+    ingredients: ['豆腐', 'ひき肉|豚こま肉|豚肉', 'ねぎ'],
+    steps: ['豆腐をさいの目に切る', 'ひき肉を炒め、麻婆豆腐の素か豆板醤・味噌で味つけ', '豆腐を加えて煮て、水溶き片栗粉でとろみをつける'] },
+  { name: 'サバの味噌煮', origin: '日本', emoji: '🐟', minutes: 25,
+    ingredients: ['さば|サバ|鯖', 'しょうが', 'ねぎ'],
+    steps: ['水・酒・砂糖・しょうがを煮立てる', 'サバを入れて落としぶたで10分煮る', '味噌を溶き入れ、煮汁をかけながら煮つめる'] },
+  { name: '鮭のちゃんちゃん焼き', origin: '日本(北海道)', emoji: '🍣', minutes: 20,
+    ingredients: ['鮭|さけ|サケ|サーモン', 'キャベツ', '玉ねぎ', 'にんじん', '味噌'],
+    steps: ['味噌・みりん・砂糖を混ぜてタレを作る', 'フライパンに鮭と野菜をのせ、タレをかける', 'ふたをして蒸し焼きにし、ほぐしながら食べる'] },
+
+  // ----- ラム肉 -----
+  { name: 'ジンギスカン', origin: '日本(北海道)', emoji: '🐑', minutes: 30,
+    ingredients: ['ラム|マトン|羊', 'もやし', '玉ねぎ', 'ピーマン|にんじん|キャベツ'],
+    steps: ['しょうゆ・砂糖・すりおろしたにんにくと玉ねぎ(またはりんご)でタレを作り、肉を15分漬ける', 'フライパンかホットプレートに野菜を敷き、真ん中で肉を焼く', '肉の脂がしみた野菜と一緒に、タレをつけて食べる'] },
+  { name: 'ラム肉のクミン炒め', origin: '中国(新疆)', emoji: '🐑', minutes: 15,
+    ingredients: ['ラム|マトン|羊', '玉ねぎ', 'ピーマン|パプリカ'],
+    steps: ['肉を薄切りにして、しょうゆと酒で下味をつける', '強火で肉を炒め、玉ねぎとピーマンを加える', 'クミン・唐辛子・塩で味つけ(クミンがなければカレー粉でも)'] },
+  { name: 'ラムチョップのハーブ焼き', origin: 'フランス', emoji: '🐑', minutes: 25,
+    ingredients: ['ラム|マトン|羊', 'にんにく', 'じゃがいも'],
+    steps: ['肉に塩こしょう、にんにく、乾燥ハーブ(ローズマリーなど)をまぶす', 'じゃがいもはくし切りにしてレンジで加熱する', 'フライパンで肉とじゃがいもを両面こんがり焼く'] },
+  { name: 'ラムのキーマカレー', origin: 'インド', emoji: '🍛', minutes: 25,
+    ingredients: ['ラム|マトン|羊', '玉ねぎ', 'トマト', 'カレールー|カレー粉'],
+    steps: ['肉を細かく刻み(ひき肉でも可)、みじん切りの玉ねぎと炒める', 'ざく切りのトマトを加えて煮つめる', 'カレールーかカレー粉で味をととのえる'] },
+
+  // ----- ひき肉・肉 -----
+  { name: 'ハンバーグ', origin: 'ドイツ発祥', emoji: '🍔', minutes: 30,
+    ingredients: ['ひき肉', '玉ねぎ', 'たまご|卵'],
+    steps: ['みじん切りの玉ねぎを炒めて冷ます', 'ひき肉・玉ねぎ・卵・パン粉・塩こしょうをよくこねる', '形を整えて両面を焼き、ふたをして中まで火を通す'] },
+  { name: 'ガパオライス', origin: 'タイ', emoji: '🌿', minutes: 15,
+    ingredients: ['ひき肉|鶏肉|鶏もも|鶏むね', 'ピーマン|パプリカ', '玉ねぎ', 'たまご|卵'],
+    steps: ['にんにくと唐辛子を炒め、ひき肉を加える', '玉ねぎとピーマンを加え、ナンプラー(なければしょうゆ)とオイスターソースで味つけ', 'ごはんにのせ、目玉焼きをのせる'] },
+  { name: 'タコライス', origin: 'メキシコ×沖縄', emoji: '🌮', minutes: 15,
+    ingredients: ['ひき肉', 'トマト', 'レタス|キャベツ', 'チーズ'],
+    steps: ['ひき肉を炒め、ケチャップ・ソース・カレー粉で味つけ', 'ごはんに細切りのレタスと肉をのせる', '角切りトマトとチーズをのせる'] },
+  { name: '肉じゃが', origin: '日本', emoji: '🥔', minutes: 30,
+    ingredients: ['じゃがいも', '玉ねぎ', 'にんじん', '豚こま肉|豚肉|牛肉'],
+    steps: ['材料を食べやすく切って炒める', '水・しょうゆ・みりん・砂糖を入れる', '落としぶたをして、じゃがいもがやわらかくなるまで煮る'] },
+  { name: '白菜と豚のミルフィーユ鍋', origin: '日本', emoji: '🍲', minutes: 20,
+    ingredients: ['白菜', '豚バラ|豚肉|豚こま肉'],
+    steps: ['白菜と豚肉を交互に重ねる', '鍋の高さに切って、すき間なく詰める', 'だしを入れて煮込み、ポン酢で食べる'] },
+
+  // ----- 魚介・野菜 -----
+  { name: 'エビチリ', origin: '中国', emoji: '🦐', minutes: 15,
+    ingredients: ['えび|エビ|海老', 'ねぎ', 'にんにく|しょうが'],
+    steps: ['えびの殻と背わたを取り、片栗粉をまぶす', 'にんにく・しょうが・豆板醤を炒め、えびを加える', 'ケチャップ・鶏ガラスープを加え、ねぎを入れてとろみをつける'] },
+  { name: 'アボカドサーモン丼', origin: 'ハワイ風', emoji: '🥑', minutes: 10,
+    ingredients: ['アボカド', '鮭|サーモン|まぐろ|マグロ'],
+    steps: ['アボカドと刺身を角切りにする', 'しょうゆ・わさび・ごま油であえる', 'ごはんにのせる'] },
+  { name: '麻婆なす', origin: '中国', emoji: '🍆', minutes: 15,
+    ingredients: ['なす|ナス', 'ひき肉|豚肉', 'ねぎ'],
+    steps: ['なすを切って、多めの油で炒める', 'ひき肉を加え、麻婆の素か豆板醤・味噌で味つけ', '水溶き片栗粉でとろみをつけ、ねぎをのせる'] },
+  { name: 'ポテトサラダ', origin: '日本', emoji: '🥗', minutes: 20,
+    ingredients: ['じゃがいも', 'きゅうり', 'にんじん', 'たまご|卵'],
+    steps: ['じゃがいもとにんじんをゆでて(レンジでも可)、じゃがいもをつぶす', 'きゅうりは薄切りにして塩もみ、卵はゆでて刻む', 'マヨネーズと塩こしょうで全部あえる'] },
 ];
+
+// ---------- 一覧にない食材のための「かんたんアレンジ」 ----------
+// 食材の名前から種類を判定して、基本の料理を自動で組み立てます。
+// キーワードや料理を足したいときは、ここに追加してください。
+const FOOD_GROUPS = [
+  // 乳製品は「牛」「豆」などの文字で肉や大豆と間違えないよう、先に判定する(アレンジは作らない)
+  { key: 'dairy', emoji: '🥛',
+    words: ['牛乳', 'ヨーグルト', 'チーズ', 'バター', '生クリーム', '豆乳'] },
+  { key: 'meat', emoji: '🍖',
+    words: ['肉', 'ひき肉', 'ベーコン', 'ハム', 'ソーセージ', 'ウインナー', '鶏', '豚', '牛', 'ささみ', 'ラム', 'マトン', '羊'] },
+  // 果物は魚より先に判定する(「すいか」の中の「いか」を魚と間違えないため)
+  { key: 'fruit', emoji: '🍎',
+    words: ['りんご', 'バナナ', 'みかん', 'いちご', 'ぶどう', 'キウイ', 'オレンジ', 'もも', '梨', '柿', 'すいか', 'メロン', 'パイナップル', 'マンゴー', '果物', 'フルーツ'] },
+  { key: 'fish', emoji: '🐟',
+    words: ['さんま', '秋刀魚', 'さば', 'サバ', '鯖', '鮭', 'さけ', 'サケ', 'サーモン', 'あじ', 'アジ', '鯵', 'いわし', 'イワシ', 'ぶり', 'ブリ', 'たら', 'タラ', '鱈', 'まぐろ', 'マグロ', 'かつお', 'カツオ', 'ほっけ', 'ホッケ', 'かれい', 'カレイ', '白身魚', '魚', 'えび', 'エビ', 'いか', 'イカ', 'たこ', 'タコ', 'ほたて', 'ホタテ', 'あさり', 'しじみ'] },
+  { key: 'mushroom', emoji: '🍄',
+    words: ['しいたけ', 'えのき', 'しめじ', 'まいたけ', 'エリンギ', 'きのこ', 'マッシュルーム'] },
+  { key: 'soy', emoji: '🫘',
+    words: ['豆腐', '厚揚げ', '油揚げ', '納豆'] },
+  { key: 'veg', emoji: '🥗',
+    words: ['キャベツ', '白菜', 'レタス', 'ほうれん草', '小松菜', 'にんじん', '大根', '玉ねぎ', 'じゃがいも', 'なす', 'ピーマン', 'トマト', 'きゅうり', 'ブロッコリー', 'かぼちゃ', 'もやし', 'ねぎ', 'ごぼう', 'れんこん', 'オクラ', 'アスパラ', 'セロリ', 'さつまいも', 'チンゲン菜', '水菜', 'にら', 'ズッキーニ', 'パプリカ', '野菜'] },
+];
+
+// n = 食材の名前。ingredients の先頭は必ずその食材にする
+const ARRANGE_TEMPLATES = {
+  fish: [
+    (n) => ({ name: `${n}の塩焼き`, minutes: 20, ingredients: [n, '大根'],
+      steps: [`${n}に塩をふって10分おき、出てきた水分をふく`, '魚焼きグリルかフライパンで両面をこんがり焼く', '大根おろしとしょうゆを添える'] }),
+    (n) => ({ name: `${n}の蒲焼き丼`, minutes: 20, ingredients: [n, 'ねぎ'],
+      steps: [`${n}に片栗粉か小麦粉を薄くまぶす`, 'フライパンで両面を焼く', 'しょうゆ・みりん・砂糖を同じ量ずつ入れて煮からめ、ごはんにのせる'] }),
+    (n) => ({ name: `${n}のホイル焼き`, minutes: 25, ingredients: [n, '玉ねぎ', 'しめじ|えのき|しいたけ|きのこ'],
+      steps: ['アルミホイルに玉ねぎときのこを敷く', `${n}をのせてバターと塩こしょうをふり、包む`, 'フライパンにのせ、ふたをして15分ほど蒸し焼きにする'] }),
+  ],
+  meat: [
+    (n) => ({ name: `${n}の生姜焼き`, minutes: 15, ingredients: [n, '玉ねぎ', 'しょうが'],
+      steps: [`${n}と薄切りの玉ねぎを炒める`, 'しょうゆ・みりん・すりおろした生姜を混ぜて加える', 'たれがからんだら完成'] }),
+    (n) => ({ name: `${n}と野菜の炒め物`, minutes: 15, ingredients: [n, 'キャベツ', 'にんじん'],
+      steps: ['野菜を食べやすく切る', `${n}を炒めて火を通す`, '野菜を加えて炒め、塩こしょうとしょうゆで味つけ'] }),
+  ],
+  mushroom: [
+    (n) => ({ name: `${n}のバター醤油炒め`, minutes: 10, ingredients: [n],
+      steps: [`${n}を食べやすくほぐす`, 'バターで炒める', '最後にしょうゆをひと回し'] }),
+    (n) => ({ name: `${n}の炊き込みごはん`, minutes: 60, ingredients: [n, 'にんじん', '油揚げ'],
+      steps: ['米を洗って、しょうゆ・みりん・だしを入れて水加減する', `${n}と細切りのにんじん・油揚げをのせる`, 'ふつうに炊いて、全体を混ぜる'] }),
+  ],
+  soy: [
+    (n) => ({ name: `${n}の味噌汁`, minutes: 10, ingredients: [n, 'ねぎ', '味噌'],
+      steps: ['だしを温める', `${n}とねぎを入れてひと煮立ちさせる`, '火を止めて味噌を溶かす'] }),
+    (n) => ({ name: `${n}のねぎしょうゆがけ`, minutes: 5, ingredients: [n, 'ねぎ'],
+      steps: [`${n}を器に盛る`, '刻んだねぎをのせる', 'しょうゆとごま油をかける'] }),
+  ],
+  fruit: [
+    (n) => ({ name: `${n}のヨーグルトがけ`, minutes: 5, ingredients: [n, 'ヨーグルト'],
+      steps: [`${n}を食べやすく切る`, 'ヨーグルトをかける', 'はちみつをかけて完成'] }),
+    (n) => ({ name: `${n}のスムージー`, minutes: 5, ingredients: [n, '牛乳|ヨーグルト'],
+      steps: [`${n}を切る`, '牛乳かヨーグルトと一緒にミキサーにかける', '甘さが足りなければはちみつを足す'] }),
+  ],
+  veg: [
+    (n) => ({ name: `${n}の味噌汁`, minutes: 10, ingredients: [n, '味噌'],
+      steps: [`${n}を食べやすく切る`, 'だしで火が通るまで煮る', '火を止めて味噌を溶かす'] }),
+    (n) => ({ name: `${n}のベーコン炒め`, minutes: 10, ingredients: [n, 'ベーコン'],
+      steps: [`${n}とベーコンを食べやすく切る`, 'ベーコンを炒めて脂を出す', `${n}を加えて炒め、塩こしょうで味つけ`] }),
+    (n) => ({ name: `${n}のナムル`, minutes: 10, ingredients: [n],
+      steps: [`${n}をゆでるかレンジで加熱する`, '水気をしっかりきる', 'ごま油・塩・すりごまであえる'] }),
+  ],
+};
+
+// ---------- 表記ゆれをそろえる ----------
+// 比べるときだけ使います(画面に出す名前は入力したまま)。
+// 言い換えを増やしたいときは、ここに「'書き方': 'そろえる先'」を1行足してください。
+const SYNONYMS = {
+  '人参': 'にんじん', '玉葱': 'たまねぎ', '玉ねぎ': 'たまねぎ', '卵': 'たまご', '玉子': 'たまご',
+  '葱': 'ねぎ', '胡瓜': 'きゅうり', '茄子': 'なす', '大蒜': 'にんにく', '生姜': 'しょうが',
+  '椎茸': 'しいたけ', '馬鈴薯': 'じゃがいも', '南瓜': 'かぼちゃ', '牛蒡': 'ごぼう', '蓮根': 'れんこん',
+  '甘藷': 'さつまいも', '薩摩芋': 'さつまいも', 'だいこん': '大根', 'ほうれんそう': 'ほうれん草',
+  'はくさい': '白菜', 'とり肉': '鶏肉', 'ぎゅうにゅう': '牛乳', 'とうふ': '豆腐',
+  '秋刀魚': 'さんま', '鮭': 'さけ', '鯖': 'さば', '鯵': 'あじ', '鰯': 'いわし', '鰤': 'ぶり', '鱈': 'たら',
+  '鮪': 'まぐろ', '海老': 'えび', '烏賊': 'いか', '蛸': 'たこ', '帆立': 'ほたて',
+  '苺': 'いちご', '林檎': 'りんご', '蜜柑': 'みかん', '葡萄': 'ぶどう', '檸檬': 'れもん',
+};
+const SYNONYM_KEYS = Object.keys(SYNONYMS).sort((a, b) => b.length - a.length); // 長い言葉から置き換える
+
+const normalizeCache = new Map(); // 同じ言葉を何度も変換しないように覚えておく
+function normalize(text) {
+  const key = String(text);
+  if (normalizeCache.has(key)) return normalizeCache.get(key);
+  const result = normalizeRaw(key);
+  normalizeCache.set(key, result);
+  return result;
+}
+function normalizeRaw(text) {
+  let s = String(text).normalize('NFKC'); // 全角英数などをそろえる
+  s = s.replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60)); // カタカナ→ひらがな
+  SYNONYM_KEYS.forEach((k) => {
+    s = s.split(k).join(SYNONYMS[k]);
+  });
+  return s;
+}
+
+function foodGroupOf(name) {
+  const n = normalize(name);
+  return FOOD_GROUPS.find((g) => g.words.some((w) => n.includes(normalize(w))));
+}
+
+// レシピを探すリンク(クックパッドの検索結果を開く)
+function searchUrl(name) {
+  return `https://cookpad.com/jp/search/${encodeURIComponent(name)}`;
+}
 
 // ---------- 料理会の選択肢 ----------
 const PLACES = ['寮の共用キッチン', '学生会館の調理室', '国際交流センター', '主催者の家'];
 const PARTY_TAGS = ['English OK', 'やさしい日本語', '初心者歓迎', 'ハラール対応', 'ベジタリアン対応'];
 const ME = { name: 'あなた', flag: '🙂', country: '' };
+
+// ---------- ごはんマッチの相手(デモ用のダミーユーザー) ----------
+// 本番では、同じ大学のユーザーのデータをサーバーから読み込む想定です。
+// foods は [食材名, 期限まであと何日] 、when.day は 0=今日 / 1=明日
+const MATCH_USERS = [
+  { id: 'mai', name: 'Mai', flag: '🇻🇳', country: 'ベトナム', type: 'intl', profile: '工学部 修士1年', diet: [],
+    want: '日本の家庭料理を覚えたい', langs: ['English OK', 'やさしい日本語'],
+    when: { day: 0, time: '19:00' }, place: '寮の共用キッチン',
+    foods: [['鶏むね肉', 1], ['もやし', 2], ['パクチー', 1], ['たまご', 5]] },
+  { id: 'kenta', name: 'Kenta', flag: '🇯🇵', country: '日本', type: 'jp', profile: '経済学部 2年', diet: [],
+    want: '一人ごはんが続いて、ちょっと寂しい', langs: ['日本語'],
+    when: { day: 0, time: '20:00' }, place: '学生会館の調理室',
+    foods: [['キャベツ', 2], ['豚バラ肉', 1], ['冷凍うどん', 10]] },
+  { id: 'aisha', name: 'Aisha', flag: '🇲🇾', country: 'マレーシア', type: 'intl', profile: '農学部 3年', diet: ['halal'],
+    want: '日本人の友達がほしい', langs: ['English OK', 'やさしい日本語', 'ハラール対応'],
+    when: { day: 1, time: '18:30' }, place: '国際交流センター',
+    foods: [['鶏もも肉', 2], ['じゃがいも', 6], ['玉ねぎ', 3], ['トマト', 1]] },
+  { id: 'jiwoo', name: 'Ji-woo', flag: '🇰🇷', country: '韓国', type: 'intl', profile: '文学部 3年', diet: [],
+    want: 'みんなで韓国料理を作りたい', langs: ['日本語OK', '한국어'],
+    when: { day: 0, time: '18:00' }, place: '寮の共用キッチン',
+    foods: [['にら', 1], ['豆腐', 2], ['ねぎ', 3]] },
+  { id: 'haruka', name: 'Haruka', flag: '🇯🇵', country: '日本', type: 'jp', profile: '教育学部 1年', diet: [],
+    want: '留学生と話してみたい', langs: ['日本語', 'English少し'],
+    when: { day: 1, time: '19:00' }, place: '学生会館の調理室',
+    foods: [['鮭', 1], ['白菜', 3], ['しめじ', 2], ['味噌', 60]] },
+  { id: 'priya', name: 'Priya', flag: '🇮🇳', country: 'インド', type: 'intl', profile: '情報科学院 博士1年', diet: ['vegetarian'],
+    want: 'スパイスの使い方を教えたい', langs: ['English OK', 'ベジタリアン'],
+    when: { day: 1, time: '12:00' }, place: '国際交流センター',
+    foods: [['ヨーグルト', 1], ['きゅうり', 2], ['トマト', 3], ['じゃがいも', 5]] },
+  { id: 'lucas', name: 'Lucas', flag: '🇧🇷', country: 'ブラジル', type: 'intl', profile: '理学部 博士2年', diet: [],
+    want: '日本語を練習したい', langs: ['English OK', 'Português'],
+    when: { day: 1, time: '19:30' }, place: '寮の共用キッチン',
+    foods: [['ひき肉', 1], ['トマト', 2], ['チーズ', 7], ['レタス', 2]] },
+];
+const MATCH_TYPES = { intl: '留学生', jp: '日本人学生' };
 
 // ---------- 日付の便利関数 ----------
 const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
@@ -160,6 +360,7 @@ function sampleData() {
       { id: newId(), name: '納豆', kind: 'used', date: now },
     ],
     events: sampleEvents(),
+    invites: {},
   };
 }
 // キャンパスの料理会(デモ用。本番ではみんなのデータをサーバーから読み込む想定)
@@ -198,7 +399,7 @@ function sampleEvents() {
 
 function emptyData() {
   // 料理会は「他の人が開いているもの」なので、空にしても残す
-  return { sample: false, foods: [], shopping: [], logs: [], events: sampleEvents() };
+  return { sample: false, foods: [], shopping: [], logs: [], events: sampleEvents(), invites: {} };
 }
 
 function load() {
@@ -288,6 +489,18 @@ function renderFridge() {
   $('countSoon').textContent = soon;
   $('countAll').textContent = foods.length;
   $('sampleNote').hidden = !state.sample;
+
+  // 一番相性の良いごはんマッチを、冷蔵庫の画面でも自動で知らせる
+  const top = computeMatches()[0];
+  $('matchCta').hidden = !top;
+  if (top) {
+    const mine = top.mine.map((i) => `「${i.food.name}」`).slice(0, 2).join('');
+    $('matchCtaFace').textContent = top.user.flag;
+    $('matchCtaTitle').textContent = `${top.user.name}さんと「${top.recipe.name}」が作れそう`;
+    $('matchCtaSub').textContent = top.urgentMine
+      ? `あなたの期限間近の${mine}を使えます・${whenLabel(top.user)}`
+      : `あなたの${mine}と${top.user.name}さんの食材で・${whenLabel(top.user)}`;
+  }
 
   // 期限間近の食材があれば、レシピへの案内を出す
   const urgent = urgentFoods();
@@ -433,13 +646,20 @@ function renderBadges() {
 let recipeFocus = 'auto'; // 'auto' = おすすめ順、それ以外は食材のid
 
 // レシピの材料1つと、冷蔵庫の食材が同じものか
+// 表記ゆれ(人参・にんじん・ニンジン など)はそろえてから比べる
 function ingredientMatches(ingredient, food) {
-  return ingredient.split('|').some((alt) => food.name.includes(alt) || alt.includes(food.name));
+  const name = normalize(food.name);
+  return ingredient.split('|').some((alt) => {
+    const a = normalize(alt);
+    if (a === 'ねぎ' && name.includes('たまねぎ')) return false; // 玉ねぎは長ねぎの代わりにしない
+    return name.includes(a) || a.includes(name);
+  });
 }
 
 // 1つのレシピについて「冷蔵庫にあるもの・ないもの」を調べる
 function checkRecipe(recipe) {
-  const foods = foodsByExpiry(); // 期限が近いものを優先して当てはめる
+  // 期限が近いものを優先して当てはめる。食材を選んで絞り込み中なら、その食材を最優先にする
+  const foods = foodsByExpiry().sort((a, b) => (b.id === recipeFocus) - (a.id === recipeFocus));
   const items = recipe.ingredients.map((ing) => {
     const food = foods.find((f) => ingredientMatches(ing, f));
     return { label: ing.split('|')[0], food };
@@ -447,6 +667,27 @@ function checkRecipe(recipe) {
   const have = items.filter((i) => i.food);
   const urgent = have.filter((i) => statusOf(i.food.expiry).level !== 'ok');
   return { recipe, items, have, urgent, missing: items.filter((i) => !i.food) };
+}
+
+// 一覧のレシピ + 冷蔵庫の食材に合わせて作った「かんたんアレンジ」
+function allRecipes() {
+  const fixed = RECIPES;
+  const arranged = [];
+  const names = new Set(fixed.map((r) => r.name));
+  foodsByExpiry().forEach((food) => {
+    // 一覧のレシピで2品以上作れる食材は、アレンジを足さない
+    const fixedCount = fixed.filter((r) => r.ingredients.some((ing) => ingredientMatches(ing, food))).length;
+    if (fixedCount >= 2) return;
+    const group = foodGroupOf(food.name);
+    if (!group || !ARRANGE_TEMPLATES[group.key]) return;
+    ARRANGE_TEMPLATES[group.key].forEach((make) => {
+      const r = make(food.name);
+      if (names.has(r.name)) return;
+      names.add(r.name);
+      arranged.push({ ...r, origin: 'かんたんアレンジ', emoji: group.emoji, arranged: true, mainFood: food.name });
+    });
+  });
+  return [...fixed, ...arranged];
 }
 
 function renderRecipes() {
@@ -461,7 +702,8 @@ function renderRecipes() {
     }),
   ].join('');
 
-  let results = RECIPES.map(checkRecipe).filter((r) => r.have.length > 0);
+  const list = allRecipes();
+  let results = list.map(checkRecipe).filter((r) => r.have.length > 0);
   if (recipeFocus !== 'auto') {
     results = results.filter((r) => r.have.some((i) => i.food.id === recipeFocus));
   }
@@ -482,7 +724,7 @@ function renderRecipes() {
         })
         .join('');
       return `
-        <li class="recipe" data-index="${RECIPES.indexOf(r.recipe)}">
+        <li class="recipe" data-index="${list.indexOf(r.recipe)}">
           <div class="recipe-head">
             <span class="recipe-emoji" aria-hidden="true">${r.recipe.emoji}</span>
             <div>
@@ -500,15 +742,24 @@ function renderRecipes() {
             <button type="button" class="btn btn-primary" data-action="party">この料理で料理会を開く</button>
             ${r.missing.length ? `<button type="button" class="btn btn-soft" data-action="shop">足りない材料を買い物リストへ</button>` : ''}
           </div>
+          ${r.recipe.arranged ? `<a class="more-link" href="${searchUrl(r.recipe.mainFood)}" target="_blank" rel="noopener">クックパッドで「${esc(r.recipe.mainFood)}」のレシピをもっと探す ↗</a>` : ''}
         </li>`;
     })
     .join('');
+
+  // 食材を選んでいるときは、その食材のレシピを探すリンクを出す
+  const focusFood = state.foods.find((f) => f.id === recipeFocus);
+  $('recipeMore').hidden = !focusFood;
+  if (focusFood) {
+    $('recipeMore').href = searchUrl(focusFood.name);
+    $('recipeMore').textContent = `クックパッドで「${focusFood.name}」のレシピを探す ↗`;
+  }
 
   $('recipeEmpty').hidden = results.length > 0;
   $('recipeEmptyText').textContent =
     state.foods.length === 0
       ? '冷蔵庫に食材を登録すると、作れる料理が表示されます'
-      : 'この食材を使うレシピは、まだ登録されていません';
+      : 'この食材を使うレシピは、まだアプリに入っていません。下のリンクから探せます';
 }
 
 // =========================================================
@@ -521,7 +772,215 @@ function upcomingEvents() {
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 }
 
+// =========================================================
+//  ごはんマッチ
+//  あなたの食材 + 相手の食材 で1つの料理になる組み合わせを探し、
+//  期限間近の食材をたくさん救える相手から順に提案する
+// =========================================================
+let matchFilter = 'all'; // all / intl / jp
+let matchShowAll = false;
+
+const PORK_WORDS = ['豚', 'ベーコン', 'ハム', 'ソーセージ', 'ウインナー'];
+function groupWords(key) {
+  return (FOOD_GROUPS.find((g) => g.key === key) || { words: [] }).words;
+}
+
+function whenLabel(user) {
+  return `${user.when.day === 0 ? '今日' : '明日'} ${user.when.time}`;
+}
+
+// 食の制限に合わない料理なら false
+function fitsDiet(user, items) {
+  const texts = items.flatMap((i) => [i.label, i.food && i.food.name].filter(Boolean)).map(normalize);
+  const hasAny = (words) => texts.some((t) => words.some((w) => t.includes(normalize(w))));
+  if (user.diet.includes('halal') && hasAny(PORK_WORDS)) return false;
+  if (user.diet.includes('vegetarian') && hasAny([...groupWords('meat'), ...groupWords('fish')])) return false;
+  return true;
+}
+
+// 1人の相手について、一番良い料理を探す
+function bestMatchFor(user) {
+  const myFoods = foodsByExpiry();
+  const theirFoods = user.foods.map(([name, days]) => ({ name, expiry: addDays(days) }));
+  let best = null;
+
+  allRecipes().forEach((recipe) => {
+    const items = recipe.ingredients.map((ing) => {
+      const label = ing.split('|')[0];
+      const mine = myFoods.find((f) => ingredientMatches(ing, f));
+      const theirs = theirFoods.find((f) => ingredientMatches(ing, f));
+      // 2人とも持っていたら、期限が近いほうを使う(同じなら自分の食材)
+      if (mine && (!theirs || mine.expiry <= theirs.expiry)) return { label, food: mine, who: 'me' };
+      if (theirs) return { label, food: theirs, who: 'them' };
+      return { label };
+    });
+    const mine = items.filter((i) => i.who === 'me');
+    const them = items.filter((i) => i.who === 'them');
+    if (!mine.length || !them.length) return; // 2人の食材を合わせて作れる料理だけ
+    if (!fitsDiet(user, items)) return;
+
+    const isUrgent = (i) => statusOf(i.food.expiry).level !== 'ok';
+    const urgentMine = mine.filter(isUrgent).length;
+    const urgentThem = them.filter(isUrgent).length;
+    const have = mine.length + them.length;
+    const sameCountry = recipe.origin.includes(user.country);
+    const score = urgentMine * 4 + urgentThem * 3 + (have / items.length) * 6 + (sameCountry ? 3 : 0);
+
+    if (!best || score > best.score) {
+      best = { user, recipe, items, mine, them, urgentMine, urgentThem, have, sameCountry, score };
+    }
+  });
+  return best;
+}
+
+function computeMatches() {
+  const invites = state.invites || {};
+  return MATCH_USERS.filter((u) => !invites[u.id])
+    .map(bestMatchFor)
+    .filter(Boolean)
+    .sort((a, b) => b.score - a.score);
+}
+
+// マッチした理由(カードに表示する)
+function matchReasons(m) {
+  const reasons = [];
+  const saved = m.urgentMine + m.urgentThem;
+  if (saved) reasons.push({ text: `期限間近の食材を${saved}品救える`, cls: 'save' });
+  if (m.sameCountry && m.user.type === 'intl') reasons.push({ text: `${m.user.country}料理を教えてもらえる` });
+  else if (m.user.type === 'intl') reasons.push({ text: '国際交流' });
+  else reasons.push({ text: '一人ごはん仲間' });
+  if (m.have === m.items.length) reasons.push({ text: '材料が全部そろう' });
+  return reasons;
+}
+
+function ingChips(list) {
+  return list
+    .map((i) => `<li class="ing have ${statusOf(i.food.expiry).level !== 'ok' ? 'urgent' : ''}">${esc(i.food.name)}</li>`)
+    .join('');
+}
+
+function renderMatches() {
+  $('matchFilter').innerHTML = [
+    { key: 'all', label: 'だれとでも' },
+    { key: 'intl', label: '留学生と' },
+    { key: 'jp', label: '日本人学生と' },
+  ]
+    .map((f) => `<button type="button" class="chip ${f.key === matchFilter ? 'is-active' : ''}" data-mfilter="${f.key}">${f.label}</button>`)
+    .join('');
+
+  // 誘った相手(マッチ成立)
+  const invites = state.invites || {};
+  const doneCards = MATCH_USERS.filter((u) => invites[u.id])
+    .map((u) => {
+      const ev = state.events.find((e) => e.id === invites[u.id]);
+      if (!ev) return '';
+      const accepted = ev.participants.some((p) => p.name === u.name);
+      return `
+        <li class="match done">
+          <div class="match-person">
+            <span class="match-avatar" aria-hidden="true">${u.flag}</span>
+            <div>
+              <p class="match-name">${esc(u.name)}さん<span class="verified">${accepted ? 'マッチ成立' : '返事待ち'}</span></p>
+              <p class="match-profile">${esc(ev.menu)}・${formatJP(ev.date)} ${esc(ev.time)}・${esc(ev.place)}</p>
+            </div>
+          </div>
+          <div class="match-actions">
+            <span class="match-status">${accepted ? `✓ ${esc(u.name)}さんが参加OKしました` : '招待を送りました'}</span>
+          </div>
+        </li>`;
+    })
+    .join('');
+
+  let matches = computeMatches().filter((m) => matchFilter === 'all' || m.user.type === matchFilter);
+  const total = matches.length;
+  if (!matchShowAll) matches = matches.slice(0, 3);
+
+  const cards = matches
+    .map((m) => {
+      const u = m.user;
+      const missing = m.items.filter((i) => !i.food);
+      return `
+        <li class="match" data-user="${u.id}">
+          <div class="match-person">
+            <span class="match-avatar" aria-hidden="true">${u.flag}</span>
+            <div>
+              <p class="match-name">${esc(u.name)}さん<span class="verified">大学認証済み</span></p>
+              <p class="match-profile">${esc(u.country)}・${MATCH_TYPES[u.type]}・${esc(u.profile)}</p>
+            </div>
+          </div>
+          <p class="match-want">「${esc(u.want)}」</p>
+          <div class="match-recipe">
+            <span class="recipe-emoji" aria-hidden="true">${m.recipe.emoji}</span>
+            <div>
+              <p class="match-recipe-name">${esc(m.recipe.name)}</p>
+              <p class="match-when">${whenLabel(u)}・${esc(u.place)}</p>
+            </div>
+          </div>
+          <div class="combo">
+            <div class="combo-side">
+              <p class="combo-label">あなたの食材</p>
+              <ul class="ings">${ingChips(m.mine)}</ul>
+            </div>
+            <span class="combo-plus" aria-hidden="true">＋</span>
+            <div class="combo-side">
+              <p class="combo-label">${esc(u.name)}さんの食材</p>
+              <ul class="ings">${ingChips(m.them)}</ul>
+            </div>
+          </div>
+          ${missing.length ? `<p class="hint">あと少し:${missing.map((i) => esc(i.label)).join('、')}</p>` : ''}
+          <div class="reasons">${matchReasons(m).map((r) => `<span class="reason ${r.cls || ''}">${esc(r.text)}</span>`).join('')}</div>
+          <div class="match-actions">
+            <button type="button" class="btn btn-primary" data-action="invite">${esc(u.name)}さんをごはんに誘う</button>
+          </div>
+        </li>`;
+    })
+    .join('');
+
+  $('matchList').innerHTML = doneCards + cards;
+  $('matchMore').hidden = matchShowAll || total <= 3;
+  $('matchEmpty').hidden = total > 0 || doneCards !== '';
+  $('matchEmptyText').textContent =
+    state.foods.length === 0
+      ? '冷蔵庫に食材を登録すると、一緒にごはんを作れる相手が見つかります'
+      : 'この条件で、今の食材から作れる相手は見つかりませんでした';
+}
+
+// 相手をごはんに誘う → 会を自動で作り、少したつと相手が参加OKする(デモ)
+function inviteMatch(userId) {
+  const user = MATCH_USERS.find((u) => u.id === userId);
+  const m = user && bestMatchFor(user);
+  if (!m) return;
+  const ev = {
+    id: newId(),
+    title: `${user.name}さんと${m.recipe.name}`,
+    menu: m.recipe.name,
+    date: addDays(user.when.day),
+    time: user.when.time,
+    place: user.place,
+    capacity: 4,
+    tags: [...user.langs],
+    host: ME, mine: true, joined: true,
+    participants: [ME],
+    bring: m.them.map((i) => ({ who: user.name, item: i.food.name })),
+  };
+  state.events.push(ev);
+  state.invites = { ...(state.invites || {}), [user.id]: ev.id };
+  bringFoods(ev, m.mine.map((i) => i.food.id));
+  commit();
+  toast(`${user.name}さんに招待を送りました`);
+
+  // デモ用:少したつと相手が参加OKする(本番では相手の操作で決まる)
+  setTimeout(() => {
+    const target = state.events.find((e) => e.id === ev.id);
+    if (!target || target.participants.some((p) => p.name === user.name)) return;
+    target.participants.push({ name: user.name, flag: user.flag, country: user.country });
+    commit();
+    toast(`${user.flag} ${user.name}さんが参加OKしました!`);
+  }, 2500);
+}
+
 function renderParty() {
+  renderMatches();
   const urgent = urgentFoods();
   $('partyHeroText').textContent = urgent.length
     ? `期限が近い${urgent.slice(0, 2).map((f) => `「${f.name}」`).join('')}を持ち寄って、留学生や友達と料理会をしませんか?`
@@ -595,7 +1054,7 @@ function commit() {
 const TITLES = {
   fridge: 'たべきり冷蔵庫',
   recipe: '作れるレシピ',
-  party: '料理会',
+  party: 'ごはんマッチ',
   shopping: '買い物リスト',
   stats: 'フードロス記録',
 };
@@ -946,7 +1405,8 @@ $('recipeFocus').addEventListener('click', (e) => {
 $('recipeList').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
-  const recipe = RECIPES[Number(btn.closest('.recipe').dataset.index)];
+  const recipe = allRecipes()[Number(btn.closest('.recipe').dataset.index)];
+  if (!recipe) return;
   const result = checkRecipe(recipe);
 
   if (btn.dataset.action === 'shop') {
@@ -960,6 +1420,38 @@ $('recipeList').addEventListener('click', (e) => {
       foodIds: result.have.map((i) => i.food.id),
     });
   }
+});
+
+// ---------- ごはんマッチの操作 ----------
+$('matchCta').addEventListener('click', () => {
+  matchFilter = 'all';
+  renderMatches();
+  showTab('party');
+});
+$('matchFilter').addEventListener('click', (e) => {
+  const chip = e.target.closest('[data-mfilter]');
+  if (!chip) return;
+  matchFilter = chip.dataset.mfilter;
+  renderMatches();
+});
+$('matchMore').addEventListener('click', () => {
+  matchShowAll = true;
+  renderMatches();
+});
+$('matchList').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-action="invite"]');
+  if (!btn) return;
+  const card = btn.closest('.match');
+  const user = MATCH_USERS.find((u) => u.id === card.dataset.user);
+  const ok = await ask(
+    `${user.name}さんをごはんに誘いますか?`,
+    `${whenLabel(user)}・${user.place}。選ばれた食材は持ち寄り用として冷蔵庫から外れます`,
+    [
+      { label: 'やめる', value: false },
+      { label: '誘う', value: true, style: 'btn-primary' },
+    ]
+  );
+  if (ok) inviteMatch(user.id);
 });
 
 $('hostBtn').addEventListener('click', () => {

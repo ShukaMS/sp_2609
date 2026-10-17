@@ -42,6 +42,17 @@
           </button>
         </div>
 
+        <!-- 期限間近の食材 → ごはんマッチへ -->
+        <button type="button" class="match-cta" id="matchCta" hidden>
+          <span class="match-cta-face" id="matchCtaFace" aria-hidden="true"></span>
+          <span class="match-cta-text">
+            <span class="match-cta-label">今日のごはんマッチ</span>
+            <b id="matchCtaTitle"></b>
+            <small id="matchCtaSub"></small>
+          </span>
+          <span class="recipe-cta-arrow" aria-hidden="true">→</span>
+        </button>
+
         <!-- 期限間近の食材 → レシピへ -->
         <button type="button" class="recipe-cta" id="recipeCta" hidden>
           <span id="recipeCtaText"></span>
@@ -67,12 +78,24 @@
           <p class="empty-icon">🍳</p>
           <p id="recipeEmptyText">冷蔵庫に食材を登録すると、作れる料理が表示されます</p>
         </div>
+        <a class="more-link center-link" id="recipeMore" href="#" target="_blank" rel="noopener" hidden></a>
       </section>
 
       <!-- ========== 料理会タブ ========== -->
       <section class="view" id="view-party" hidden>
+        <!-- ごはんマッチ -->
+        <p class="lead" id="matchLead">あなたの期限間近の食材と、相手の食材を合わせて作れる料理から、一緒にごはんを食べる相手を提案します。</p>
+        <div class="chips" id="matchFilter" aria-label="相手で絞り込み"></div>
+        <ul class="match-list" id="matchList"></ul>
+        <div class="empty" id="matchEmpty" hidden>
+          <p class="empty-icon">🤝</p>
+          <p id="matchEmptyText">冷蔵庫に食材を登録すると、一緒にごはんを作れる相手が見つかります</p>
+        </div>
+        <button type="button" class="link-btn center" id="matchMore" hidden>ほかの候補も見る</button>
+        <p class="safety-note">表示されるのは大学のメールアドレスで認証済みの学生だけです。初めての相手とは、学内の共用スペースで会いましょう。</p>
+
         <div class="party-hero">
-          <p class="party-hero-title">余った食材で、みんなでごはん</p>
+          <p class="party-hero-title">自分で料理会を開く</p>
           <p class="party-hero-text" id="partyHeroText">期限が近い食材を持ち寄って、留学生や友達と料理会をしませんか?</p>
           <button type="button" class="btn btn-primary" id="hostBtn">料理会を開く</button>
         </div>
@@ -148,7 +171,7 @@
       <span class="tab-icon"><span class="tab-emoji">🍳</span></span>レシピ
     </button>
     <button type="button" class="tab" data-tab="party">
-      <span class="tab-icon"><span class="tab-emoji">🍲</span><i class="tab-badge" id="badgeParty" hidden></i></span>料理会
+      <span class="tab-icon"><span class="tab-emoji">🤝</span><i class="tab-badge" id="badgeParty" hidden></i></span>マッチ
     </button>
     <button type="button" class="tab" data-tab="shopping">
       <span class="tab-icon"><span class="tab-emoji">🛒</span><i class="tab-badge" id="badgeShop" hidden></i></span>買い物
