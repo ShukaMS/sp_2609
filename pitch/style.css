@@ -746,6 +746,7 @@ h1 {
   display: grid; place-items: center;
   background: var(--surface);
   font-size: 26px;
+  overflow: hidden; flex-shrink: 0;
 }
 .match-cta-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .match-cta-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; opacity: 0.75; }

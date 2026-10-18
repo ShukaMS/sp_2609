@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>のこりものクラブ(PC発表用)</title>
+<link rel="icon" type="image/png" href="icons/icon-original-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap">
+<style>
+  /* PCやプロジェクターで発表するための画面:中央にスマホ、左右に説明 */
+  :root {
+    --bg: #16302B;
+    --ink: #EAF1F0;
+    --muted: #9DBDB8;
+    --accent: #5CC1C4;
+    --red: #F08A82;
+    --card: rgba(255, 255, 255, .06);
+    --font: "BIZ UDGothic", "MS Gothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); }
+
+  .stage {
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 4vw;
+    padding: 3vh 4vw;
+  }
+
+  /* 左:タイトルと合言葉、いまのステップ */
+  .left { display: flex; flex-direction: column; gap: 4vh; justify-self: end; max-width: 30vw; }
+  .brand { display: flex; align-items: center; gap: 1.2vw; }
+  .brand img { width: 5.2vw; height: 5.2vw; min-width: 56px; min-height: 56px; border-radius: 22%; }
+  .brand h1 { margin: 0; font-size: clamp(22px, 2.6vw, 44px); line-height: 1.2; }
+  .formula { margin: 0; font-size: clamp(18px, 1.9vw, 34px); font-weight: 700; line-height: 1.6; }
+  .formula span { color: var(--accent); }
+  .formula em { font-style: normal; color: var(--red); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.4vh; }
+  .steps li {
+    display: grid; grid-template-columns: 2.6em minmax(0, 1fr); align-items: center; gap: .8em;
+    padding: 1.2vh 1vw; border-radius: 14px; font-size: clamp(14px, 1.25vw, 22px);
+    color: var(--muted); transition: background .3s, color .3s, transform .3s;
+  }
+  .steps b {
+    display: grid; place-items: center; width: 2.2em; height: 2.2em; border-radius: 50%;
+    border: 2px solid currentColor; font-size: .9em;
+  }
+  .steps li.now { background: var(--accent); color: var(--bg); transform: translateX(.6vw); font-weight: 700; }
+  .steps li.done { color: var(--ink); }
+  .steps li.done b { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* 中央:スマホ */
+  .phone {
+    position: relative;
+    width: 414px; height: 868px;
+    border-radius: 48px; padding: 12px; background: #0B1A17;
+    box-shadow: 0 0 0 2px #2C4C46, 0 30px 80px rgba(0, 0, 0, .5);
+    transform-origin: center center;
+  }
+  .phone iframe { width: 100%; height: 100%; border: 0; border-radius: 38px; background: #EAF1F0; display: block; }
+
+  /* 右:安心のしくみ */
+  .right { justify-self: start; max-width: 28vw; display: flex; flex-direction: column; gap: 1.6vh; }
+  .right h2 { margin: 0 0 .6vh; font-size: clamp(16px, 1.5vw, 26px); color: var(--accent); }
+  .safe { display: grid; grid-template-columns: 1.8em minmax(0, 1fr); gap: .7em; align-items: start;
+    padding: 1.4vh 1.1vw; border-radius: 14px; background: var(--card); font-size: clamp(13px, 1.1vw, 19px); line-height: 1.55;
+    transition: background .3s, box-shadow .3s; }
+  .safe .ic { font-size: 1.3em; line-height: 1.2; }
+  .safe strong { display: block; font-size: 1.05em; }
+  .safe small { color: var(--muted); font-size: .85em; }
+  .safe.hot { background: rgba(92, 193, 196, .22); box-shadow: inset 0 0 0 2px var(--accent); }
+
+  .hint { position: fixed; right: 14px; bottom: 10px; font-size: 12px; color: #5F807A; }
+
+  /* 画面が狭いときは説明を隠してスマホだけ */
+  @media (max-width: 1000px) {
+    .stage { grid-template-columns: 1fr; justify-items: center; }
+    .left, .right { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <section class="left">
+    <div class="brand">
+      <img src="icons/icon-original-180.png" alt="">
+      <h1>のこりものクラブ</h1>
+    </div>
+    <p class="formula"><span>あなたの余り物</span><br>＋ <span>相手の余り物</span><br>＝ <em>今夜のごはん</em></p>
+    <ol class="steps" id="steps">
+      <li data-step="1"><b>1</b>期限が近い食材が赤く光る</li>
+      <li data-step="2"><b>2</b>一緒に作れる相手を自分で選ぶ</li>
+      <li data-step="3"><b>3</b>誘う → OKでマッチ成立</li>
+      <li data-step="4"><b>4</b>写真は2人が許可したら公開</li>
+    </ol>
+  </section>
+
+  <div class="phone" id="phone">
+    <iframe id="app" src="index.html" title="のこりものクラブ デモ画面"></iframe>
+  </div>
+
+  <aside class="right">
+    <h2>安心のしくみ</h2>
+    <div class="safe" data-safe="1 2"><span class="ic">🎓</span><div><strong>北大メールの人だけ</strong><small>〜hokudai.ac.jp でしか登録できない</small></div></div>
+    <div class="safe" data-safe="2"><span class="ic">🧊</span><div><strong>見せるのは期限3日以内の食材だけ</strong><small>マッチをONにしている間だけ</small></div></div>
+    <div class="safe" data-safe="2"><span class="ic">🙈</span><div><strong>性別は見せずに「同性のみ」</strong><small>相手の画面には表示しない</small></div></div>
+    <div class="safe" data-safe="3"><span class="ic">💬</span><div><strong>メッセージは定型文だけ</strong><small>連絡先・URLは送れない。会うのは学内だけ</small></div></div>
+    <div class="safe" data-safe="4"><span class="ic">📷</span><div><strong>写真は2人の許可制</strong><small>片方が取り消すと、すぐ非公開に</small></div></div>
+  </aside>
+</div>
+<p class="hint">R キー:最初に戻す</p>
+
+<script>
+  // スマホの枠を、画面の高さに合わせて拡大・縮小する
+  const phone = document.getElementById('phone');
+  function fit() {
+    const s = Math.min((window.innerHeight * 0.94) / 868, 1.25);
+    phone.style.transform = `scale(${s})`;
+    phone.style.margin = `${(868 * (s - 1)) / 2}px ${(414 * (s - 1)) / 2}px`;
+  }
+  addEventListener('resize', fit);
+  fit();
+
+  // アプリの状態を見て、左の「いまのステップ」と右の説明を光らせる
+  const frame = document.getElementById('app');
+  function currentStep() {
+    try {
+      const w = frame.contentWindow;
+      const tab = w.eval('currentTab');
+      const c = w.cloud;
+      if (!c) return 1;
+      const today = w.addDays(0);
+      const active = (c.invites || []).filter((i) => i.status === 'accepted' && i.slot.split('|')[0] >= today);
+      if (active.some((i) => i.from_photo_ok && i.to_photo_ok)) return 4;
+      if (active.length) return 3;
+      if (tab === 'party') return 2;
+      return 1;
+    } catch (e) {
+      return 1;
+    }
+  }
+  setInterval(() => {
+    const step = currentStep();
+    document.querySelectorAll('#steps li').forEach((li) => {
+      const n = Number(li.dataset.step);
+      li.classList.toggle('now', n === step);
+      li.classList.toggle('done', n < step);
+    });
+    document.querySelectorAll('.safe').forEach((el) => {
+      el.classList.toggle('hot', el.dataset.safe.split(' ').includes(String(step)));
+    });
+  }, 300);
+
+  // R キーで最初に戻す(アプリを読み込み直す)
+  addEventListener('keydown', (e) => {
+    if (e.key === 'r' || e.key === 'R') frame.contentWindow.location.reload();
+  });
+  frame.addEventListener('load', () => {
+    frame.contentWindow.addEventListener('keydown', (e) => {
+      const t = e.target.tagName;
+      if ((e.key === 'r' || e.key === 'R') && t !== 'INPUT' && t !== 'TEXTAREA') frame.contentWindow.location.reload();
+    });
+  });
+</script>
+</body>
+</html>

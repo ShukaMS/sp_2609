@@ -586,7 +586,7 @@ function renderFridge() {
   $('matchCta').hidden = !top;
   if (top) {
     const mine = top.mine.map((i) => `「${i.food.name}」`).slice(0, 2).join('');
-    $('matchCtaFace').textContent = top.user.flag;
+    $('matchCtaFace').innerHTML = avatarHtml(top.user.avatar, top.user.flag);
     $('matchCtaTitle').textContent = `${top.user.name}さんと「${top.recipe.name}」が作れそう`;
     $('matchCtaSub').textContent = top.urgentMine
       ? `あなたの期限間近の${mine}を使えます・${whenLabel(top.user)}`
