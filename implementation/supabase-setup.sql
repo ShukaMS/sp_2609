@@ -96,6 +96,10 @@ create table if not exists public.invites (
 );
 alter table public.invites enable row level security;
 
+-- 写真の公開の許可(2人とも true のときだけ、ほかの北大生にも写真が見える)
+alter table public.invites add column if not exists from_photo_ok boolean not null default false;
+alter table public.invites add column if not exists to_photo_ok boolean not null default false;
+
 drop policy if exists "invites: read mine" on public.invites;
 create policy "invites: read mine" on public.invites
   for select using (from_id = auth.uid() or to_id = auth.uid());
@@ -107,7 +111,8 @@ create policy "invites: answer" on public.invites
   for update using (from_id = auth.uid() or to_id = auth.uid())
   with check (from_id = auth.uid() or to_id = auth.uid());
 
--- OK/パスは誘われた人だけ、取り消しは誘った人だけ。内容の書き換えは禁止
+-- OK/パスは誘われた人だけ、取り消しは誘った人だけ。内容の書き換えは禁止。
+-- 写真の公開の許可は、それぞれ自分の分だけ、マッチ成立後にだけ変えられる
 create or replace function public.invites_guard()
 returns trigger
 language plpgsql
@@ -115,14 +120,31 @@ as $$
 begin
   if new.from_id <> old.from_id or new.to_id <> old.to_id or new.recipe <> old.recipe
      or new.slot <> old.slot or new.place <> old.place
-     or new.from_foods <> old.from_foods or new.to_foods <> old.to_foods then
+     or new.from_foods <> old.from_foods or new.to_foods <> old.to_foods
+     or new.from_name <> old.from_name or new.to_name <> old.to_name
+     or new.created_at <> old.created_at then
     raise exception '誘いの内容は変更できません';
   end if;
-  if new.status in ('accepted', 'declined') and auth.uid() <> old.to_id then
-    raise exception '返事ができるのは誘われた人だけです';
+  if new.status is distinct from old.status then
+    if old.status <> 'pending' then
+      raise exception 'この誘いは、もう返事が決まっています';
+    end if;
+    if new.status in ('accepted', 'declined') and auth.uid() <> old.to_id then
+      raise exception '返事ができるのは誘われた人だけです';
+    end if;
+    if new.status = 'cancelled' and auth.uid() <> old.from_id then
+      raise exception '取り消しができるのは誘った人だけです';
+    end if;
   end if;
-  if new.status = 'cancelled' and auth.uid() <> old.from_id then
-    raise exception '取り消しができるのは誘った人だけです';
+  if new.from_photo_ok is distinct from old.from_photo_ok and auth.uid() <> old.from_id then
+    raise exception '写真の公開は、自分の分しか変えられません';
+  end if;
+  if new.to_photo_ok is distinct from old.to_photo_ok and auth.uid() <> old.to_id then
+    raise exception '写真の公開は、自分の分しか変えられません';
+  end if;
+  if (new.from_photo_ok is distinct from old.from_photo_ok or new.to_photo_ok is distinct from old.to_photo_ok)
+     and new.status <> 'accepted' then
+    raise exception '写真の公開は、マッチ成立後に決められます';
   end if;
   return new;
 end;
@@ -174,9 +196,33 @@ create table if not exists public.meal_posts (
 );
 alter table public.meal_posts enable row level security;
 
+-- この「ごはん会」の写真を見てよいか:
+--   ・ごはん会の2人 → いつでも見られる
+--   ・ほかの北大生 → 2人とも「公開を許可」したときだけ
+create or replace function public.can_see_meal(inv uuid)
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select public.is_hokudai() and exists (
+    select 1 from public.invites i
+    where i.id = inv and i.status = 'accepted'
+      and (i.from_id = auth.uid() or i.to_id = auth.uid() or (i.from_photo_ok and i.to_photo_ok))
+  );
+$$;
+
+-- 写真ファイル(保存場所のパス)を見てよいか
+create or replace function public.can_see_meal_photo(p text)
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select exists (select 1 from public.meal_posts m where m.photo_path = p and public.can_see_meal(m.invite_id));
+$$;
+
 drop policy if exists "meal_posts: read" on public.meal_posts;
 create policy "meal_posts: read" on public.meal_posts
-  for select using (public.is_hokudai());
+  for select using (public.can_see_meal(invite_id));
 drop policy if exists "meal_posts: post" on public.meal_posts;
 create policy "meal_posts: post" on public.meal_posts
   for insert with check (user_id = auth.uid() and public.is_hokudai() and exists (
@@ -186,6 +232,28 @@ create policy "meal_posts: post" on public.meal_posts
 drop policy if exists "meal_posts: delete own" on public.meal_posts;
 create policy "meal_posts: delete own" on public.meal_posts
   for delete using (user_id = auth.uid());
+
+-- ---------- アプリ(ログインした人)が表を使えるようにする ----------
+-- 「Automatically expose new tables」をOFFにしたプロジェクトでも動くように、明示的に許可する。
+-- 実際に読み書きできる範囲は、上のアクセス制限(policy)で守られている。
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on
+  public.profiles, public.shared_foods, public.invites, public.messages, public.meal_posts
+  to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+
+-- ---------- 料理の実績(写真をシェアしたごはん会の回数) ----------
+create or replace function public.meal_count_of(target uuid)
+returns bigint
+language sql stable security definer
+set search_path = public
+as $$
+  select count(distinct m.invite_id)
+  from public.meal_posts m
+  join public.invites i on i.id = m.invite_id
+  where i.status = 'accepted' and (i.from_id = target or i.to_id = target);
+$$;
+revoke all on function public.meal_count_of(uuid) from public, anon;
 
 -- ---------- マッチ候補を返す関数 ----------
 -- 性別はここでだけ使い、非公開の人の性別は外に出さない
@@ -218,7 +286,7 @@ as $$
     p.id, p.display_name, p.country, p.flag, p.student_type, p.faculty_year, p.bio,
     p.langs, p.diet, p.allergies, p.cooking_level, p.fav_cuisines, p.slots, p.places,
     case when p.gender_public then p.gender else null end as gender_label,
-    (select count(*) from public.meal_posts m where m.user_id = p.id) as meal_count,
+    public.meal_count_of(p.id) as meal_count,
     coalesce((
       select jsonb_agg(jsonb_build_object('name', f.name, 'expiry', f.expiry) order by f.expiry)
       from public.shared_foods f
@@ -237,12 +305,92 @@ $$;
 revoke all on function public.match_candidates() from public, anon;
 grant execute on function public.match_candidates() to authenticated;
 
--- ---------- 写真の保存場所 ----------
-insert into storage.buckets (id, name, public)
-values ('meal-photos', 'meal-photos', true)
-on conflict (id) do nothing;
+-- ---------- 相手のプロフィール(表示してよい項目だけ) ----------
+-- 見られるのは「マッチをONにしている人」か「自分と誘いのやりとりがある人」だけ。性別は公開設定の人だけ
+drop function if exists public.public_profile(uuid);
+create function public.public_profile(target uuid)
+returns table (
+  id uuid,
+  display_name text,
+  country text,
+  flag text,
+  student_type text,
+  faculty_year text,
+  bio text,
+  langs text[],
+  diet text[],
+  cooking_level text,
+  fav_cuisines text[],
+  gender_label text,
+  meal_count bigint
+)
+language sql stable security definer
+set search_path = public
+as $$
+  select p.id, p.display_name, p.country, p.flag, p.student_type, p.faculty_year, p.bio,
+         p.langs, p.diet, p.cooking_level, p.fav_cuisines,
+         case when p.gender_public then p.gender else null end,
+         public.meal_count_of(p.id)
+  from public.profiles p
+  where public.is_hokudai()
+    and p.id = target
+    and (p.id = auth.uid() or p.match_on or exists (
+      select 1 from public.invites i
+      where (i.from_id = auth.uid() and i.to_id = p.id) or (i.to_id = auth.uid() and i.from_id = p.id)
+    ));
+$$;
+revoke all on function public.public_profile(uuid) from public, anon;
+grant execute on function public.public_profile(uuid) to authenticated;
 
+-- ---------- 料理の履歴(ごはん会ごとに1行) ----------
+-- 写真のパスは、見てよい人にだけ返す(それ以外は null =「非公開」と表示)
+drop function if exists public.meal_history(uuid);
+create function public.meal_history(target uuid)
+returns table (
+  invite_id uuid,
+  recipe text,
+  recipe_emoji text,
+  meal_date timestamptz,
+  photo_path text,
+  is_public boolean
+)
+language sql stable security definer
+set search_path = public
+as $$
+  select distinct on (i.id)
+    i.id, i.recipe, i.recipe_emoji, m.created_at,
+    case when public.can_see_meal(i.id) then m.photo_path else null end,
+    (i.from_photo_ok and i.to_photo_ok)
+  from public.invites i
+  join public.meal_posts m on m.invite_id = i.id
+  where public.is_hokudai()
+    and i.status = 'accepted'
+    and (i.from_id = target or i.to_id = target)
+    and exists (select 1 from public.public_profile(target))
+  order by i.id, m.created_at
+$$;
+revoke all on function public.meal_history(uuid) from public, anon;
+grant execute on function public.meal_history(uuid) to authenticated;
+
+-- ---------- 写真の保存場所(非公開。見てよい人にだけ、期限付きのURLを発行する) ----------
+insert into storage.buckets (id, name, public)
+values ('meal-photos', 'meal-photos', false)
+on conflict (id) do update set public = false;
+
+-- 写真を上げられるのは、マッチが成立したごはん会の2人だけ(パスの先頭 = 誘いのID)
 drop policy if exists "meal photos: upload" on storage.objects;
 create policy "meal photos: upload" on storage.objects
   for insert to authenticated
-  with check (bucket_id = 'meal-photos' and public.is_hokudai());
+  with check (
+    bucket_id = 'meal-photos' and public.is_hokudai() and exists (
+      select 1 from public.invites i
+      where i.id::text = split_part(name, '/', 1) and i.status = 'accepted'
+        and (i.from_id = auth.uid() or i.to_id = auth.uid())
+    )
+  );
+
+-- 写真を見られる(期限付きURLを作れる)のは、見てよい人だけ
+drop policy if exists "meal photos: read" on storage.objects;
+create policy "meal photos: read" on storage.objects
+  for select to authenticated
+  using (bucket_id = 'meal-photos' and public.can_see_meal_photo(name));

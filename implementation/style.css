@@ -1,5 +1,5 @@
 /* =========================================================
-   たべきり冷蔵庫 スタイル
+   のこりものクラブ スタイル
    レイアウト: スマホ幅の1カラム。上にヘッダー、下に固定タブバー。
    色はこの :root の変数を変えるだけで全体が変わります。
    ========================================================= */
@@ -22,8 +22,9 @@
   --ok-soft: #DDF0E3;
 
   --shadow: 0 2px 10px rgba(22, 48, 43, 0.08);
-  --font-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
-  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  /* MSゴシック風:BIZ UDゴシック(Webフォント)→ PCに入っていればMSゴシック → 端末の標準ゴシック */
+  --font-display: "BIZ UDGothic", "MS Gothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --font-body: "BIZ UDGothic", "MS Gothic", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", sans-serif;
   --radius: 16px;
   --tabbar-h: 64px;
 }
@@ -104,7 +105,7 @@ button { cursor: pointer; }
 h1 {
   margin: 2px 0 0;
   font-family: var(--font-display);
-  font-weight: 900;
+  font-weight: 700;
   font-size: 28px;
   letter-spacing: 0.02em;
   text-wrap: balance;
@@ -135,7 +136,7 @@ h1 {
   box-shadow: var(--shadow);
 }
 .stat-num {
-  font-family: var(--font-display); font-weight: 900; font-size: 30px; line-height: 1.1;
+  font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 .stat-label { font-size: 12px; color: var(--muted); }
@@ -321,7 +322,7 @@ h1 {
   border: 2px solid var(--line);
   background: none;
   display: grid; place-items: center;
-  color: var(--on-accent); font-weight: 900; font-size: 14px;
+  color: var(--on-accent); font-weight: 700; font-size: 14px;
 }
 .shop-item.done .check { background: var(--accent); border-color: var(--accent); }
 .shop-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
@@ -337,7 +338,7 @@ h1 {
 .panel-title { margin: 0 0 8px; font-weight: 700; font-size: 14px; }
 .big-rate {
   margin: 0;
-  font-family: var(--font-display); font-weight: 900; font-size: 56px; line-height: 1;
+  font-family: var(--font-display); font-weight: 700; font-size: 56px; line-height: 1;
   color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
@@ -366,7 +367,7 @@ h1 {
   width: 24px; height: 24px; border-radius: 50%;
   display: grid; place-items: center;
   background: var(--danger-soft); color: var(--danger);
-  font-weight: 900; font-size: 13px;
+  font-weight: 700; font-size: 13px;
 }
 .rank .rank-name { flex: 1; }
 .rank .rank-count { color: var(--danger); font-weight: 700; }
@@ -387,6 +388,68 @@ h1 {
 .log-kind.wasted { background: var(--danger-soft); color: var(--danger); }
 .log-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .log-date { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+/* ---------- 相手のプロフィール ---------- */
+.match-person.person-btn {
+  width: 100%;
+  border: none; background: none; padding: 0;
+  text-align: left; cursor: pointer;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+.person-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.person-text .match-name, .person-text .match-profile { display: block; }
+.person-more {
+  align-self: center;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 12px; font-weight: 700; white-space: nowrap;
+}
+.person-link {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+  border: none; background: none; padding: 0;
+  text-align: left; cursor: pointer; color: var(--ink);
+}
+.person-link .person-more { margin-left: auto; }
+.pf-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; }
+.pf-avatar {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--surface); font-size: 36px;
+}
+.pf-name { margin: 0; font-weight: 700; font-size: 20px; overflow-wrap: anywhere; }
+.pf-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pf-stats div { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; background: var(--surface); }
+.pf-stats b { font-size: 22px; font-variant-numeric: tabular-nums; }
+.pf-stats span { font-size: 12px; color: var(--muted); }
+.meal-ph {
+  display: grid; place-items: center;
+  width: 100%; aspect-ratio: 1 / 1;
+  background: var(--accent-soft);
+  font-size: 48px;
+}
+.meal-ph.locked { background: var(--bg); filter: grayscale(0.8); opacity: 0.7; }
+.meal-state { margin-left: 6px; color: var(--accent); font-weight: 700; }
+.meal-state.lock { color: var(--muted); }
+
+/* 写真の公開の許可(マッチ成立後のカード) */
+.consent { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--bg); }
+.consent-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.consent-chip { padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--surface); color: var(--muted); }
+.consent-chip.ok { background: var(--ok-soft); color: var(--ok); }
+.consent .hint { margin: 0; }
+
+.icon-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.icon-choice {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 8px 4px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: none;
+  font-size: 11px;
+  color: var(--muted);
+}
+.icon-choice img { width: 100%; max-width: 64px; aspect-ratio: 1 / 1; border-radius: 22%; box-shadow: var(--shadow); }
+.icon-choice.is-on { border-color: var(--accent); color: var(--accent); font-weight: 700; }
 
 .row-btn {
   display: block; width: 100%;
@@ -574,7 +637,7 @@ h1 {
   border-radius: var(--radius);
   background: var(--accent-soft);
 }
-.party-hero-title { margin: 0; font-family: var(--font-display); font-weight: 900; font-size: 20px; }
+.party-hero-title { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px; }
 .party-hero-text { margin: 0; font-size: 14px; }
 
 .party-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
@@ -595,7 +658,7 @@ h1 {
   background: var(--bg);
   font-variant-numeric: tabular-nums;
 }
-.party-date .d { font-family: var(--font-display); font-weight: 900; font-size: 20px; line-height: 1.1; }
+.party-date .d { font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1.1; }
 .party-date .w { font-size: 12px; color: var(--muted); }
 .party-date .t { font-size: 12px; font-weight: 700; color: var(--accent); }
 .party-body { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -710,7 +773,7 @@ h1 {
 .combo { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: start; }
 .combo-side { min-width: 0; padding: 10px; border-radius: 12px; background: var(--bg); }
 .combo-label { margin: 0 0 6px; font-size: 11px; font-weight: 700; color: var(--muted); }
-.combo-plus { align-self: center; font-weight: 900; color: var(--muted); }
+.combo-plus { align-self: center; font-weight: 700; color: var(--muted); }
 .combo .ings { gap: 4px; }
 .combo .ing { font-size: 12px; padding: 2px 8px; }
 .reasons { display: flex; flex-wrap: wrap; gap: 6px; }

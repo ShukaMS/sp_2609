@@ -149,7 +149,12 @@
 
   // ---------- 誘いの仕分け ----------
   const partnerOf = (i) =>
-    i.from_id === uid() ? { name: i.to_name, flag: i.to_flag } : { name: i.from_name, flag: i.from_flag };
+    i.from_id === uid()
+      ? { id: i.to_id, name: i.to_name, flag: i.to_flag }
+      : { id: i.from_id, name: i.from_name, flag: i.from_flag };
+  // 写真の公開の許可:自分の分と相手の分
+  const myConsentKey = (i) => (i.from_id === uid() ? 'from_photo_ok' : 'to_photo_ok');
+  const theirConsentKey = (i) => (i.from_id === uid() ? 'to_photo_ok' : 'from_photo_ok');
   const myFoodsIn = (i) => (i.from_id === uid() ? i.from_foods : i.to_foods) || [];
   const theirFoodsIn = (i) => (i.from_id === uid() ? i.to_foods : i.from_foods) || [];
   const recent = (i) => slotDate(i.slot) >= addDays(-1); // 写真を上げられるよう、昨日の分まで表示
@@ -172,6 +177,24 @@
     toast(cloud.error);
     renderCloud();
   }
+
+  // ---------- 写真:見てよい人にだけ、1時間で切れるURLを発行してもらう ----------
+  const PHOTO_URL_SECONDS = 3600;
+  cloud.photoUrls = {}; // パス → { url, until }
+  async function signPhotos(paths) {
+    const now = Date.now();
+    const need = [...new Set(paths.filter(Boolean))].filter((p) => {
+      const c = cloud.photoUrls[p];
+      return !c || c.until - now < 5 * 60 * 1000;
+    });
+    if (!need.length) return;
+    const { data, error } = await sb.storage.from('meal-photos').createSignedUrls(need, PHOTO_URL_SECONDS);
+    if (error) return; // 見る権限がないなど。写真は「非公開」として表示される
+    (data || []).forEach((d) => {
+      if (d.signedUrl && !d.error) cloud.photoUrls[d.path] = { url: d.signedUrl, until: now + PHOTO_URL_SECONDS * 1000 };
+    });
+  }
+  const photoUrl = (path) => (cloud.photoUrls[path] ? cloud.photoUrls[path].url : '');
 
   let loading = false;
   async function loadAll() {
@@ -196,6 +219,7 @@
         cloud.candidates = cand.data || [];
         cloud.invites = inv.data || [];
         cloud.posts = posts.data || [];
+        await signPhotos(cloud.posts.map((p) => p.photo_path));
 
         const ids = cloud.invites.filter((i) => i.status === 'accepted').map((i) => i.id);
         cloud.messages = {};
@@ -446,9 +470,21 @@
       .map((m) => `<li><b>${esc(m.sender_name)}</b>:${esc(m.text)} <span>${new Date(m.created_at).toTimeString().slice(0, 5)}</span></li>`)
       .join('');
     const ended = (state.endedInvites || []).includes(i.id);
+    const mine = !!i[myConsentKey(i)];
+    const theirs = !!i[theirConsentKey(i)];
+    const consent = `
+        <div class="consent">
+          <p class="combo-label">写真の公開(2人とも許可すると、ほかの北大生もプロフィールで見られます)</p>
+          <div class="consent-row">
+            <span class="consent-chip ${mine ? 'ok' : ''}">あなた:${mine ? '許可済み' : '未許可'}</span>
+            <span class="consent-chip ${theirs ? 'ok' : ''}">${esc(partner.name)}さん:${theirs ? '許可済み' : '未許可'}</span>
+            ${mine && theirs ? '<span class="consent-chip ok">公開中</span>' : '<span class="consent-chip">今は2人だけが見られます</span>'}
+          </div>
+          <button type="button" class="btn ${mine ? 'btn-ghost' : 'btn-soft'}" data-cloud="consent">${mine ? '公開の許可を取り消す' : '写真の公開を許可する'}</button>
+        </div>`;
     return `
       <li class="match done" data-invite="${i.id}">
-        <p class="match-name">${esc(partner.flag)} ${esc(partner.name)}さんとマッチ成立<span class="verified">マッチ成立</span></p>
+        <button type="button" class="match-name person-link" data-cloud="profile" data-uid="${esc(partner.id)}">${esc(partner.flag)} ${esc(partner.name)}さんとマッチ成立<span class="verified">マッチ成立</span><span class="person-more">履歴 ›</span></button>
         ${head}${combo}
         <div class="msg-box">
           <p class="combo-label">メッセージ(決まった文だけ送れます)</p>
@@ -463,6 +499,7 @@
             ? '<span class="match-status">✓ 使い切りとして記録済み</span>'
             : '<button type="button" class="btn btn-ghost" data-cloud="ended">ごはん会が終わった</button>'}
         </div>
+        ${consent}
       </li>`;
   }
 
@@ -503,19 +540,20 @@
       const missing = m.items.filter((i) => !i.food);
       const facts = [
         u.cooking ? `料理:${u.cooking}` : '',
-        u.mealCount ? `ごはん会の写真 ${u.mealCount}枚` : 'はじめてのごはん会',
+        u.mealCount ? `ごはん会 ${u.mealCount}回` : 'はじめてのごはん会',
         u.genderLabel ? (GENDERS.find(([k]) => k === u.genderLabel) || [, ''])[1] : '',
       ].filter(Boolean);
       return `
         <li class="match" data-user="${u.id}">
-          <div class="match-person">
+          <button type="button" class="match-person person-btn" data-cloud="profile" data-uid="${esc(u.id)}" aria-label="${esc(u.name)}さんのプロフィールを見る">
             <span class="match-avatar" aria-hidden="true">${esc(u.flag)}</span>
-            <div>
-              <p class="match-name">${esc(u.name)}さん<span class="verified">北大認証済み</span></p>
-              <p class="match-profile">${esc(u.country)}・${u.type === 'intl' ? '留学生' : '日本人学生'}${u.profile ? `・${esc(u.profile)}` : ''}</p>
-              <p class="match-profile">${facts.map(esc).join('・')}</p>
-            </div>
-          </div>
+            <span class="person-text">
+              <span class="match-name">${esc(u.name)}さん<span class="verified">北大認証済み</span></span>
+              <span class="match-profile">${esc(u.country)}・${u.type === 'intl' ? '留学生' : '日本人学生'}${u.profile ? `・${esc(u.profile)}` : ''}</span>
+              <span class="match-profile">${facts.map(esc).join('・')}</span>
+            </span>
+            <span class="person-more" aria-hidden="true">履歴 ›</span>
+          </button>
           ${u.want ? `<p class="match-want">「${esc(u.want)}」</p>` : ''}
           <div class="match-recipe">
             <span class="recipe-emoji" aria-hidden="true">${m.recipe.emoji}</span>
@@ -541,14 +579,11 @@
     return `${head}${filter}<ul class="match-list">${cards.join('')}</ul>${more}`;
   }
 
-  function photoUrl(path) {
-    return sb.storage.from('meal-photos').getPublicUrl(path).data.publicUrl;
-  }
-
   function feedHtml() {
     const head = '<p class="section-label">みんなで作ったごはん</p>';
-    if (!cloud.posts.length) return `${head}<p class="hint">ごはん会のあとに写真をシェアすると、ここに並びます。写真の枚数は、料理の実績としてプロフィールにも表示されます。</p>`;
-    return `${head}<div class="meal-grid">${cloud.posts
+    const posts = cloud.posts.filter((p) => photoUrl(p.photo_path));
+    if (!posts.length) return `${head}<p class="hint">ごはん会のあとに写真をシェアすると、ここに並びます。2人とも公開を許可した写真は、ほかの北大生のこの欄にも表示されます。</p>`;
+    return `${head}<div class="meal-grid">${posts
       .map((p) => {
         const d = new Date(p.created_at);
         return `
@@ -558,6 +593,76 @@
           </figure>`;
       })
       .join('')}</div>`;
+  }
+
+  // ---------- 相手のプロフィールと料理の履歴 ----------
+  const TYPE_LABEL = { intl: '留学生', jp: '日本人学生' };
+  async function openCloudPartner(id) {
+    // まずは手元の情報ですぐ開き、サーバーの情報で描き直す
+    const known = cloud.candidates.find((c) => c.id === id);
+    const inv = cloud.invites.find((i) => i.from_id === id || i.to_id === id);
+    const base = known
+      ? { flag: known.flag, name: known.display_name }
+      : inv
+        ? partnerOf(inv)
+        : { flag: '🌏', name: '' };
+    openPartnerSheet({ ...base, loading: true });
+    try {
+      const [pr, hist] = await Promise.all([
+        sb.rpc('public_profile', { target: id }),
+        sb.rpc('meal_history', { target: id }),
+      ]);
+      if (pr.error) throw pr.error;
+      if (hist.error) throw hist.error;
+      const p = (pr.data || [])[0];
+      if (!p) {
+        openPartnerSheet({ ...base, error: 'このプロフィールは今は見られません(相手がマッチをOFFにしている可能性があります)' });
+        return;
+      }
+      const rows = (hist.data || []).sort((a, b) => String(b.meal_date).localeCompare(String(a.meal_date)));
+      await signPhotos(rows.map((r) => r.photo_path));
+      const tags = [...(p.langs || [])];
+      if ((p.diet || []).includes('halal')) tags.push('ハラール');
+      if ((p.diet || []).includes('vegetarian')) tags.push('ベジタリアン');
+      if (p.gender_label) tags.push((GENDERS.find(([k]) => k === p.gender_label) || [, ''])[1]);
+      if ($('partnerSheet').hidden) return; // 読み込み中に閉じられた
+      openPartnerSheet({
+        flag: p.flag,
+        name: p.display_name,
+        sub: `${p.country}・${TYPE_LABEL[p.student_type] || ''}${p.faculty_year ? `・${p.faculty_year}` : ''}`,
+        bio: p.bio,
+        tags,
+        cooking: p.cooking_level,
+        favs: p.fav_cuisines,
+        mealCount: Number(p.meal_count || 0),
+        meals: rows.map((r) => ({
+          recipe: r.recipe,
+          emoji: r.recipe_emoji,
+          date: r.meal_date,
+          isPublic: r.is_public,
+          photoUrl: r.photo_path ? photoUrl(r.photo_path) : '',
+        })),
+      });
+    } catch (e) {
+      openPartnerSheet({ ...base, error: errorText(e) });
+    }
+  }
+
+  async function toggleConsent(inv) {
+    const key = myConsentKey(inv);
+    const next = !inv[key];
+    if (next) {
+      const ok = await ask('写真の公開を許可しますか?', `${partnerOf(inv).name}さんも許可すると、このごはん会の写真が、ほかの北大生にもプロフィールで見られるようになります。あとから取り消せます`, [
+        { label: 'やめる', value: false },
+        { label: '許可する', value: true, style: 'btn-primary' },
+      ]);
+      if (!ok) return;
+    }
+    const { error } = await sb.from('invites').update({ [key]: next }).eq('id', inv.id);
+    if (error) return showError(error);
+    inv[key] = next;
+    toast(next ? (inv[theirConsentKey(inv)] ? '2人とも許可したので、写真が公開されました' : '許可しました。相手も許可すると公開されます') : '許可を取り消しました。写真は2人だけが見られます');
+    loadAll();
   }
 
   // =========================================================
@@ -623,6 +728,8 @@
       $('mealPhotoInput').click();
     }
     if (action === 'ended' && inv) endMeal(inv);
+    if (action === 'consent' && inv) toggleConsent(inv);
+    if (action === 'profile') openCloudPartner(btn.dataset.uid);
   });
 
   async function sendInvite(userId) {

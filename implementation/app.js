@@ -1,5 +1,5 @@
 /* =========================================================
-   たべきり冷蔵庫 の動き
+   のこりものクラブ の動き
    - データはブラウザ(localStorage)に保存します
    - 上から「データ」「便利関数」「画面を描く」「操作」の順に並んでいます
    ========================================================= */
@@ -273,6 +273,89 @@ const MATCH_USERS = [
     foods: [['ひき肉', 1], ['トマト', 2], ['チーズ', 7], ['レタス', 2]] },
 ];
 const MATCH_TYPES = { intl: '留学生', jp: '日本人学生' };
+
+// デモの相手のプロフィール詳細と、作った料理の履歴
+// meals は [料理名, 絵文字, 何日前, 2人とも写真の公開を許可したか]
+const DEMO_PROFILES = {
+  mai: { cooking: '得意', favs: ['東南アジア料理', '和食'],
+    meals: [['鶏肉のフォー風スープ', '🍲', 3, true], ['親子丼', '🍚', 10, false], ['野菜チヂミ', '🥞', 18, true]] },
+  kenta: { cooking: 'ふつう', favs: ['和食', '中華'], meals: [['焼きうどん', '🍜', 6, true]] },
+  aisha: { cooking: '得意', favs: ['東南アジア料理', 'インド料理'],
+    meals: [['ミルクシチュー', '🍵', 4, true], ['肉じゃが', '🥔', 12, true], ['ガパオライス', '🌿', 20, false], ['キャロットラペ', '🥕', 27, true]] },
+  jiwoo: { cooking: '得意', favs: ['韓国料理'], meals: [['野菜チヂミ', '🥞', 2, true], ['麻婆豆腐', '🌶️', 9, false]] },
+  haruka: { cooking: '苦手', favs: ['和食', '洋食'], meals: [] },
+  priya: { cooking: '得意', favs: ['インド料理'], meals: [['ザジキ(ヨーグルトのディップ)', '🥒', 5, true], ['かんたんラッシー', '🥛', 15, false]] },
+  lucas: { cooking: 'ふつう', favs: ['中南米料理', '洋食'], meals: [['タコライス', '🌮', 8, true]] },
+};
+MATCH_USERS.forEach((u) => {
+  const d = DEMO_PROFILES[u.id] || {};
+  u.cooking = d.cooking;
+  u.favs = d.favs || [];
+});
+
+// =========================================================
+//  相手のプロフィール(デモ版と本物で共通の画面)
+//  p = { flag, name, sub, bio, tags, cooking, favs, mealCount, meals, loading, error }
+//  meals の1件 = { recipe, emoji, date, photoUrl, isPublic }
+// =========================================================
+function partnerHtml(p) {
+  const meals = p.meals || [];
+  const mealTiles = meals
+    .map((m) => {
+      const d = new Date(m.date);
+      const label = `${d.getMonth() + 1}/${d.getDate()}`;
+      const visual = m.photoUrl
+        ? `<img src="${esc(m.photoUrl)}" alt="${esc(m.recipe)}の写真" loading="lazy">`
+        : `<span class="meal-ph ${m.isPublic ? '' : 'locked'}" aria-hidden="true">${esc(m.emoji || '🍳')}</span>`;
+      const state = m.photoUrl ? '' : m.isPublic ? '<span class="meal-state">写真公開中</span>' : '<span class="meal-state lock">🔒 写真は非公開</span>';
+      return `<figure class="meal-photo">${visual}<figcaption>${esc(m.recipe)}<span>${label}${state}</span></figcaption></figure>`;
+    })
+    .join('');
+  const tags = [...(p.tags || []), ...(p.favs || []).map((f) => `${f}好き`)];
+  return `
+    <div class="pf-head">
+      <span class="pf-avatar" aria-hidden="true">${esc(p.flag || '🌏')}</span>
+      <div>
+        <p class="pf-name">${esc(p.name)}さん<span class="verified">北大認証済み</span></p>
+        <p class="match-profile">${esc(p.sub || '')}</p>
+      </div>
+    </div>
+    ${p.bio ? `<p class="match-want">「${esc(p.bio)}」</p>` : ''}
+    <div class="pf-stats">
+      <div><b>${p.mealCount ?? meals.length}</b><span>ごはん会</span></div>
+      <div><b>${esc(p.cooking || '—')}</b><span>料理</span></div>
+    </div>
+    ${tags.length ? `<div class="tags">${tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}
+    <p class="section-label">作った料理の履歴</p>
+    ${p.loading ? '<p class="hint">読み込んでいます…</p>' : ''}
+    ${p.error ? `<p class="cloud-error">${esc(p.error)}</p>` : ''}
+    ${!p.loading && !p.error && !meals.length ? '<p class="hint">まだごはん会の記録はありません</p>' : ''}
+    ${meals.length ? `<div class="meal-grid">${mealTiles}</div>` : ''}
+    <p class="safety-note">写真は、ごはん会の2人がどちらも「公開を許可」したものだけ、ほかの北大生にも表示されます。どちらかが許可を取り消すと、すぐに見えなくなります。</p>`;
+}
+
+function openPartnerSheet(p) {
+  $('partnerBody').innerHTML = partnerHtml(p);
+  $('partnerSheet').hidden = false;
+}
+
+function openDemoPartner(id) {
+  const u = MATCH_USERS.find((x) => x.id === id);
+  if (!u) return;
+  const d = DEMO_PROFILES[id] || { meals: [] };
+  openPartnerSheet({
+    flag: u.flag,
+    name: u.name,
+    sub: `${u.country}・${MATCH_TYPES[u.type]}・${u.profile}`,
+    bio: u.want,
+    tags: u.langs,
+    cooking: d.cooking,
+    favs: d.favs,
+    meals: (d.meals || []).map(([recipe, emoji, ago, isPublic]) => ({
+      recipe, emoji, isPublic, photoUrl: null, date: parseDate(addDays(-ago)),
+    })),
+  });
+}
 
 // ---------- 日付の便利関数 ----------
 const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
@@ -922,14 +1005,15 @@ function renderMatches() {
       if (!ev) return '';
       const accepted = ev.participants.some((p) => p.name === u.name);
       return `
-        <li class="match done">
-          <div class="match-person">
+        <li class="match done" data-user="${u.id}">
+          <button type="button" class="match-person person-btn" data-action="profile" aria-label="${esc(u.name)}さんのプロフィールを見る">
             <span class="match-avatar" aria-hidden="true">${u.flag}</span>
-            <div>
-              <p class="match-name">${esc(u.name)}さん<span class="verified">${accepted ? 'マッチ成立' : '返事待ち'}</span></p>
-              <p class="match-profile">${esc(ev.menu)}・${formatJP(ev.date)} ${esc(ev.time)}・${esc(ev.place)}</p>
-            </div>
-          </div>
+            <span class="person-text">
+              <span class="match-name">${esc(u.name)}さん<span class="verified">${accepted ? 'マッチ成立' : '返事待ち'}</span></span>
+              <span class="match-profile">${esc(ev.menu)}・${formatJP(ev.date)} ${esc(ev.time)}・${esc(ev.place)}</span>
+            </span>
+            <span class="person-more" aria-hidden="true">履歴 ›</span>
+          </button>
           <div class="match-actions">
             <span class="match-status">${accepted ? `✓ ${esc(u.name)}さんが参加OKしました` : '招待を送りました'}</span>
           </div>
@@ -947,13 +1031,14 @@ function renderMatches() {
       const missing = m.items.filter((i) => !i.food);
       return `
         <li class="match" data-user="${u.id}">
-          <div class="match-person">
+          <button type="button" class="match-person person-btn" data-action="profile" aria-label="${esc(u.name)}さんのプロフィールを見る">
             <span class="match-avatar" aria-hidden="true">${u.flag}</span>
-            <div>
-              <p class="match-name">${esc(u.name)}さん<span class="verified">大学認証済み</span></p>
-              <p class="match-profile">${esc(u.country)}・${MATCH_TYPES[u.type]}・${esc(u.profile)}</p>
-            </div>
-          </div>
+            <span class="person-text">
+              <span class="match-name">${esc(u.name)}さん<span class="verified">大学認証済み</span></span>
+              <span class="match-profile">${esc(u.country)}・${MATCH_TYPES[u.type]}・${esc(u.profile)}${u.cooking ? `・料理:${esc(u.cooking)}` : ''}</span>
+            </span>
+            <span class="person-more" aria-hidden="true">履歴 ›</span>
+          </button>
           <p class="match-want">「${esc(u.want)}」</p>
           <div class="match-recipe">
             <span class="recipe-emoji" aria-hidden="true">${m.recipe.emoji}</span>
@@ -1098,7 +1183,7 @@ function commit() {
 
 // ---------- タブ ----------
 const TITLES = {
-  fridge: 'たべきり冷蔵庫',
+  fridge: 'のこりものクラブ',
   recipe: '作れるレシピ',
   party: 'ごはんマッチ',
   shopping: '買い物リスト',
@@ -1485,6 +1570,8 @@ $('matchMore').addEventListener('click', () => {
   renderMatches();
 });
 $('matchList').addEventListener('click', async (e) => {
+  const prof = e.target.closest('[data-action="profile"]');
+  if (prof) return openDemoPartner(prof.closest('.match').dataset.user);
   const btn = e.target.closest('[data-action="invite"]');
   if (!btn) return;
   const card = btn.closest('.match');
@@ -1692,7 +1779,59 @@ $('partyForm').addEventListener('submit', (e) => {
   }, 4000);
 });
 
+// =========================================================
+//  ホーム画面のアイコン(この端末だけの設定)
+// =========================================================
+const APP_ICONS = [
+  { key: 'fridge', label: '冷蔵庫くん' },
+  { key: 'onigiri', label: 'おにぎり' },
+  { key: 'carrot', label: 'にんじん' },
+  { key: 'bowls', label: 'ふたりのお茶碗' },
+];
+const ICON_KEY = 'nokori-app-icon';
+
+function currentIcon() {
+  try {
+    const saved = localStorage.getItem(ICON_KEY);
+    if (APP_ICONS.some((i) => i.key === saved)) return saved;
+  } catch (e) {
+    /* 保存できない環境では最初のアイコン */
+  }
+  return APP_ICONS[0].key;
+}
+
+function applyIcon(key) {
+  const href = `icons/icon-${key}-180.png`;
+  $('touchIcon').setAttribute('href', href);
+  $('favIcon').setAttribute('href', href);
+  $('iconPicker').innerHTML = APP_ICONS.map(
+    (i) => `<button type="button" class="icon-choice ${i.key === key ? 'is-on' : ''}" role="radio" aria-checked="${i.key === key}" data-icon="${i.key}">
+      <img src="icons/icon-${i.key}-180.png" alt="">
+      <span>${i.label}</span>
+    </button>`
+  ).join('');
+}
+
+$('iconPicker').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-icon]');
+  if (!btn) return;
+  try {
+    localStorage.setItem(ICON_KEY, btn.dataset.icon);
+  } catch (err) {
+    /* 保存できなくても、今開いている間は反映する */
+  }
+  applyIcon(btn.dataset.icon);
+  toast('アイコンを変えました');
+});
+
+// ---------- 相手のプロフィールを閉じる ----------
+$('partnerClose').addEventListener('click', () => ($('partnerSheet').hidden = true));
+$('partnerSheet').addEventListener('click', (e) => {
+  if (e.target === $('partnerSheet')) $('partnerSheet').hidden = true;
+});
+
 // ---------- 起動 ----------
+applyIcon(currentIcon());
 $('today').textContent = (() => {
   const d = new Date();
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日(${WEEK[d.getDay()]})`;

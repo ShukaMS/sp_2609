@@ -1,0 +1,15 @@
+{
+  "name": "のこりものクラブ",
+  "short_name": "のこりもの",
+  "description": "余った食材が、今夜のごはん仲間に変わる。北大生のための冷蔵庫×ごはんマッチアプリ",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EAF1F0",
+  "theme_color": "#EAF1F0",
+  "icons": [
+    { "src": "icons/icon-fridge-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icons/icon-fridge-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

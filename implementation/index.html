@@ -3,11 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>たべきり冷蔵庫</title>
+  <title>のこりものクラブ</title>
   <meta name="claude:viewport-fit-sides" content="cover">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap">
+  <!-- ホーム画面に追加したときのアイコンと名前(アイコンは記録タブで変えられる) -->
+  <link rel="apple-touch-icon" id="touchIcon" href="icons/icon-fridge-180.png">
+  <link rel="icon" id="favIcon" type="image/png" href="icons/icon-fridge-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="のこりもの">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#EAF1F0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,7 +24,7 @@
     <!-- ヘッダー -->
     <header class="top">
       <p class="today" id="today"></p>
-      <h1 id="pageTitle">たべきり冷蔵庫</h1>
+      <h1 id="pageTitle">のこりものクラブ</h1>
     </header>
 
     <main>
@@ -153,6 +162,12 @@
         <div class="panel">
           <p class="panel-title">最近の記録</p>
           <ul class="log-list" id="logList"></ul>
+        </div>
+
+        <div class="panel">
+          <p class="panel-title">ホーム画面のアイコン</p>
+          <div class="icon-picker" id="iconPicker" role="radiogroup" aria-label="ホーム画面のアイコン"></div>
+          <p class="hint">選んでから「ホーム画面に追加」すると、そのアイコンになります。追加済みの場合は、一度削除して追加し直してください。</p>
         </div>
 
         <div class="panel">
@@ -356,6 +371,18 @@
         <button type="button" class="link-btn center" id="logoutBtn">ログアウト</button>
       </div>
     </form>
+  </div>
+
+  <!-- ========== 相手のプロフィールと料理の履歴 ========== -->
+  <div class="backdrop" id="partnerSheet" hidden>
+    <div class="sheet">
+      <div class="sheet-head">
+        <button type="button" class="link-btn" id="partnerClose">閉じる</button>
+        <h2>プロフィール</h2>
+        <span class="head-spacer" aria-hidden="true"></span>
+      </div>
+      <div class="sheet-body" id="partnerBody"></div>
+    </div>
   </div>
 
   <!-- ごはん写真の選択用(画面の書き換えで消えないよう、ここに1つだけ置く) -->
