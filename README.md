@@ -5,7 +5,7 @@
 
 **「たべきり冷蔵庫」** は、余った食材をきっかけに大学生同士の新しい出会いを生み出す、マッチングWebアプリです。
 
-🌐 **[Webアプリはこちら](https://shukams.github.io/sp_2609/アプリ本番用/)**
+🌐 **[Webアプリはこちら](https://shukams.github.io/sp_2609/implementation/)**
 
 ---
 
