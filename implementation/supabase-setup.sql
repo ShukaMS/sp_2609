@@ -45,6 +45,10 @@ create table if not exists public.profiles (
 );
 alter table public.profiles enable row level security;
 
+-- マイページのアイコン('flag' = 国旗。ほかはアプリに入っている絵柄から選ぶ。顔写真は使わない)
+alter table public.profiles add column if not exists avatar text not null default 'flag'
+  check (avatar in ('flag', 'original', 'fridge', 'onigiri', 'carrot', 'bowls'));
+
 -- 自分のプロフィールだけ読み書きできる(他の人の情報は下の match_candidates 経由でのみ見える)
 drop policy if exists "profiles: read own" on public.profiles;
 create policy "profiles: read own" on public.profiles
@@ -99,6 +103,11 @@ alter table public.invites enable row level security;
 -- 写真の公開の許可(2人とも true のときだけ、ほかの北大生にも写真が見える)
 alter table public.invites add column if not exists from_photo_ok boolean not null default false;
 alter table public.invites add column if not exists to_photo_ok boolean not null default false;
+-- 誘いのカードに出す2人のアイコン
+alter table public.invites add column if not exists from_avatar text not null default 'flag'
+  check (from_avatar in ('flag', 'original', 'fridge', 'onigiri', 'carrot', 'bowls'));
+alter table public.invites add column if not exists to_avatar text not null default 'flag'
+  check (to_avatar in ('flag', 'original', 'fridge', 'onigiri', 'carrot', 'bowls'));
 
 drop policy if exists "invites: read mine" on public.invites;
 create policy "invites: read mine" on public.invites
@@ -264,6 +273,7 @@ returns table (
   display_name text,
   country text,
   flag text,
+  avatar text,
   student_type text,
   faculty_year text,
   bio text,
@@ -283,7 +293,7 @@ set search_path = public
 as $$
   with me as (select * from public.profiles where id = auth.uid())
   select
-    p.id, p.display_name, p.country, p.flag, p.student_type, p.faculty_year, p.bio,
+    p.id, p.display_name, p.country, p.flag, p.avatar, p.student_type, p.faculty_year, p.bio,
     p.langs, p.diet, p.allergies, p.cooking_level, p.fav_cuisines, p.slots, p.places,
     case when p.gender_public then p.gender else null end as gender_label,
     public.meal_count_of(p.id) as meal_count,
@@ -314,6 +324,7 @@ returns table (
   display_name text,
   country text,
   flag text,
+  avatar text,
   student_type text,
   faculty_year text,
   bio text,
@@ -327,7 +338,7 @@ returns table (
 language sql stable security definer
 set search_path = public
 as $$
-  select p.id, p.display_name, p.country, p.flag, p.student_type, p.faculty_year, p.bio,
+  select p.id, p.display_name, p.country, p.flag, p.avatar, p.student_type, p.faculty_year, p.bio,
          p.langs, p.diet, p.cooking_level, p.fav_cuisines,
          case when p.gender_public then p.gender else null end,
          public.meal_count_of(p.id)
@@ -394,3 +405,6 @@ drop policy if exists "meal photos: read" on storage.objects;
 create policy "meal photos: read" on storage.objects
   for select to authenticated
   using (bucket_id = 'meal-photos' and public.can_see_meal_photo(name));
+
+-- ---------- 最後に:アプリから新しい機能がすぐ見えるよう、読み込み直してもらう ----------
+notify pgrst, 'reload schema';

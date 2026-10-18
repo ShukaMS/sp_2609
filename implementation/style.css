@@ -438,6 +438,24 @@ h1 {
 .consent-chip.ok { background: var(--ok-soft); color: var(--ok); }
 .consent .hint { margin: 0; }
 
+.avatar-img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.match-avatar, .pf-avatar { overflow: hidden; }
+.mini-avatar {
+  display: inline-grid; place-items: center; flex: none;
+  width: 26px; height: 26px; margin-right: 6px;
+  border-radius: 50%; overflow: hidden; background: var(--bg);
+  font-size: 16px; vertical-align: middle;
+}
+.my-title { display: flex; align-items: center; }
+.my-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
+.my-links .btn { padding: 9px 14px; font-size: 14px; }
+.avatar-choice {
+  display: grid; place-items: center;
+  width: 100%; max-width: 56px; aspect-ratio: 1 / 1;
+  border-radius: 50%; overflow: hidden;
+  background: var(--surface); font-size: 30px;
+}
+#pfAvatar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .icon-picker { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .icon-choice {
   display: flex; flex-direction: column; align-items: center; gap: 6px;

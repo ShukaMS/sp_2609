@@ -129,6 +129,7 @@
       id: c.id,
       name: c.display_name,
       flag: c.flag || '🌏',
+      avatar: c.avatar || 'flag',
       country: c.country || '',
       type: c.student_type,
       profile: c.faculty_year || '',
@@ -150,8 +151,8 @@
   // ---------- 誘いの仕分け ----------
   const partnerOf = (i) =>
     i.from_id === uid()
-      ? { id: i.to_id, name: i.to_name, flag: i.to_flag }
-      : { id: i.from_id, name: i.from_name, flag: i.from_flag };
+      ? { id: i.to_id, name: i.to_name, flag: i.to_flag, avatar: i.to_avatar }
+      : { id: i.from_id, name: i.from_name, flag: i.from_flag, avatar: i.from_avatar };
   // 写真の公開の許可:自分の分と相手の分
   const myConsentKey = (i) => (i.from_id === uid() ? 'from_photo_ok' : 'to_photo_ok');
   const theirConsentKey = (i) => (i.from_id === uid() ? 'to_photo_ok' : 'from_photo_ok');
@@ -409,7 +410,7 @@
       <div class="panel cloud-panel">
         <div class="switch-row">
           <div>
-            <p class="panel-title">${esc(p.flag)} ${esc(p.display_name)}さんのマッチ</p>
+            <p class="panel-title my-title"><span class="mini-avatar" aria-hidden="true">${avatarHtml(p.avatar, p.flag)}</span>${esc(p.display_name)}さんのマッチ</p>
             <p class="hint">ONの間だけ、期限が3日以内の食材が相手に表示されます</p>
           </div>
           <button type="button" class="switch ${p.match_on ? 'on' : ''}" role="switch" aria-checked="${p.match_on}" aria-label="マッチ" data-cloud="toggle-match"><span></span></button>
@@ -418,7 +419,10 @@
         <div class="chips wrap">${slotChips}</div>
         <p class="field-label">会える場所</p>
         <div class="chips wrap">${placeChips}</div>
-        <button type="button" class="link-btn" data-cloud="edit-profile">プロフィールを編集</button>
+        <div class="my-links">
+          <button type="button" class="btn btn-soft" data-cloud="profile" data-uid="${esc(p.id)}">マイページ(自分の履歴)</button>
+          <button type="button" class="link-btn" data-cloud="edit-profile">プロフィールを編集</button>
+        </div>
       </div>`;
   }
 
@@ -446,7 +450,7 @@
     if (kind === 'incoming') {
       return `
         <li class="match" data-invite="${i.id}">
-          <p class="match-name">${esc(i.from_flag)} ${esc(i.from_name)}さんから、ごはんの誘いが届きました</p>
+          <button type="button" class="match-name person-link" data-cloud="profile" data-uid="${esc(i.from_id)}"><span class="mini-avatar" aria-hidden="true">${avatarHtml(i.from_avatar, i.from_flag)}</span>${esc(i.from_name)}さんから、ごはんの誘いが届きました<span class="person-more">履歴 ›</span></button>
           ${head}${combo}
           <div class="match-actions">
             <button type="button" class="btn btn-primary" data-cloud="accept">OK!</button>
@@ -457,7 +461,7 @@
     if (kind === 'outgoing') {
       return `
         <li class="match" data-invite="${i.id}">
-          <p class="match-name">${esc(i.to_flag)} ${esc(i.to_name)}さんの返事待ち<span class="verified pending">返事待ち</span></p>
+          <p class="match-name person-link"><span class="mini-avatar" aria-hidden="true">${avatarHtml(i.to_avatar, i.to_flag)}</span>${esc(i.to_name)}さんの返事待ち<span class="verified pending">返事待ち</span></p>
           ${head}
           <div class="match-actions">
             <button type="button" class="link-btn" data-cloud="cancel">誘いを取り消す</button>
@@ -484,7 +488,7 @@
         </div>`;
     return `
       <li class="match done" data-invite="${i.id}">
-        <button type="button" class="match-name person-link" data-cloud="profile" data-uid="${esc(partner.id)}">${esc(partner.flag)} ${esc(partner.name)}さんとマッチ成立<span class="verified">マッチ成立</span><span class="person-more">履歴 ›</span></button>
+        <button type="button" class="match-name person-link" data-cloud="profile" data-uid="${esc(partner.id)}"><span class="mini-avatar" aria-hidden="true">${avatarHtml(partner.avatar, partner.flag)}</span>${esc(partner.name)}さんとマッチ成立<span class="verified">マッチ成立</span><span class="person-more">履歴 ›</span></button>
         ${head}${combo}
         <div class="msg-box">
           <p class="combo-label">メッセージ(決まった文だけ送れます)</p>
@@ -546,7 +550,7 @@
       return `
         <li class="match" data-user="${u.id}">
           <button type="button" class="match-person person-btn" data-cloud="profile" data-uid="${esc(u.id)}" aria-label="${esc(u.name)}さんのプロフィールを見る">
-            <span class="match-avatar" aria-hidden="true">${esc(u.flag)}</span>
+            <span class="match-avatar" aria-hidden="true">${avatarHtml(u.avatar, u.flag)}</span>
             <span class="person-text">
               <span class="match-name">${esc(u.name)}さん<span class="verified">北大認証済み</span></span>
               <span class="match-profile">${esc(u.country)}・${u.type === 'intl' ? '留学生' : '日本人学生'}${u.profile ? `・${esc(u.profile)}` : ''}</span>
@@ -601,8 +605,11 @@
     // まずは手元の情報ですぐ開き、サーバーの情報で描き直す
     const known = cloud.candidates.find((c) => c.id === id);
     const inv = cloud.invites.find((i) => i.from_id === id || i.to_id === id);
-    const base = known
-      ? { flag: known.flag, name: known.display_name }
+    const me = id === uid() && cloud.profile; // マイページ(自分)
+    const base = me
+      ? { flag: me.flag, avatar: me.avatar, name: me.display_name }
+      : known
+      ? { flag: known.flag, avatar: known.avatar, name: known.display_name }
       : inv
         ? partnerOf(inv)
         : { flag: '🌏', name: '' };
@@ -628,6 +635,7 @@
       if ($('partnerSheet').hidden) return; // 読み込み中に閉じられた
       openPartnerSheet({
         flag: p.flag,
+        avatar: p.avatar,
         name: p.display_name,
         sub: `${p.country}・${TYPE_LABEL[p.student_type] || ''}${p.faculty_year ? `・${p.faculty_year}` : ''}`,
         bio: p.bio,
@@ -751,8 +759,10 @@
       to_id: u.id,
       from_name: p.display_name,
       from_flag: p.flag,
+      from_avatar: p.avatar || 'flag',
       to_name: u.name,
       to_flag: u.flag,
+      to_avatar: u.avatar || 'flag',
       recipe: m.recipe.name,
       recipe_emoji: m.recipe.emoji,
       slot: u.slot,
@@ -854,14 +864,26 @@
   // =========================================================
   //  プロフィールの入力シート
   // =========================================================
-  const pf = { type: '', langs: [], diet: [], gender: '', cooking: '', cuisines: [] };
+  const pf = { avatar: 'flag', type: '', langs: [], diet: [], gender: '', cooking: '', cuisines: [] };
 
+  $('pfCountry').addEventListener('change', renderAvatarPicker); // 国旗の見本を変える
   $('pfCountry').innerHTML = COUNTRIES.map(([name, flag]) => `<option value="${name}">${flag} ${name}</option>`).join('');
 
   function chip(group, value, label, on) {
     return `<button type="button" class="chip ${on ? 'is-on' : ''}" data-pf="${group}" data-value="${esc(value)}">${esc(label)}</button>`;
   }
+  function renderAvatarPicker() {
+    const flag = (COUNTRIES.find(([n]) => n === $('pfCountry').value) || ['', '🌏'])[1];
+    const opts = [['flag', '国旗'], ...APP_ICONS.map((i) => [i.key, i.label])];
+    $('pfAvatar').innerHTML = opts
+      .map(([key, label]) => `<button type="button" class="icon-choice ${pf.avatar === key ? 'is-on' : ''}" role="radio" aria-checked="${pf.avatar === key}" data-avatar="${key}">
+          <span class="avatar-choice">${avatarHtml(key, flag)}</span><span>${esc(label)}</span>
+        </button>`)
+      .join('');
+  }
+
   function renderProfileChips() {
+    renderAvatarPicker();
     $('pfType').innerHTML = STUDENT_TYPES.map(([v, l]) => chip('type', v, l, pf.type === v)).join('');
     $('pfLangs').innerHTML = LANGS.map((l) => chip('langs', l, l, pf.langs.includes(l))).join('');
     $('pfDiet').innerHTML = DIETS.map(([v, l]) => chip('diet', v, l, pf.diet.includes(v))).join('');
@@ -885,6 +907,7 @@
     $('pfGenderPublic').checked = !!p.gender_public;
     $('pfSameGender').checked = !!p.same_gender_only;
     Object.assign(pf, {
+      avatar: p.avatar || 'original',
       type: p.student_type || '',
       langs: [...(p.langs || [])],
       diet: [...(p.diet || [])],
@@ -898,6 +921,12 @@
   }
 
   document.querySelector('#profileSheet .sheet').addEventListener('click', (e) => {
+    const av = e.target.closest('[data-avatar]');
+    if (av) {
+      pf.avatar = av.dataset.avatar;
+      renderAvatarPicker();
+      return;
+    }
     const c = e.target.closest('[data-pf]');
     if (!c) return;
     const { pf: group, value } = c.dataset;
@@ -931,6 +960,7 @@
     const row = {
       id: uid(),
       display_name: name.slice(0, 30),
+      avatar: pf.avatar,
       country,
       flag: (COUNTRIES.find(([n]) => n === country) || ['', '🌏'])[1],
       student_type: pf.type,

@@ -243,15 +243,15 @@ const ME = { name: 'あなた', flag: '🙂', country: '' };
 // 本番では、同じ大学のユーザーのデータをサーバーから読み込む想定です。
 // foods は [食材名, 期限まであと何日] 、when.day は 0=今日 / 1=明日
 const MATCH_USERS = [
-  { id: 'mai', name: 'Mai', flag: '🇻🇳', country: 'ベトナム', type: 'intl', profile: '工学部 修士1年', diet: [],
+  { id: 'mai', avatar: 'onigiri', name: 'Mai', flag: '🇻🇳', country: 'ベトナム', type: 'intl', profile: '工学部 修士1年', diet: [],
     want: '日本の家庭料理を覚えたい', langs: ['English OK', 'やさしい日本語'],
     when: { day: 0, time: '19:00' }, place: '寮の共用キッチン',
     foods: [['鶏むね肉', 1], ['もやし', 2], ['パクチー', 1], ['たまご', 5]] },
-  { id: 'kenta', name: 'Kenta', flag: '🇯🇵', country: '日本', type: 'jp', profile: '経済学部 2年', diet: [],
+  { id: 'kenta', avatar: 'fridge', name: 'Kenta', flag: '🇯🇵', country: '日本', type: 'jp', profile: '経済学部 2年', diet: [],
     want: '一人ごはんが続いて、ちょっと寂しい', langs: ['日本語'],
     when: { day: 0, time: '20:00' }, place: '学生会館の調理室',
     foods: [['キャベツ', 2], ['豚バラ肉', 1], ['冷凍うどん', 10]] },
-  { id: 'aisha', name: 'Aisha', flag: '🇲🇾', country: 'マレーシア', type: 'intl', profile: '農学部 3年', diet: ['halal'],
+  { id: 'aisha', avatar: 'bowls', name: 'Aisha', flag: '🇲🇾', country: 'マレーシア', type: 'intl', profile: '農学部 3年', diet: ['halal'],
     want: '日本人の友達がほしい', langs: ['English OK', 'やさしい日本語', 'ハラール対応'],
     when: { day: 1, time: '18:30' }, place: '国際交流センター',
     foods: [['鶏もも肉', 2], ['じゃがいも', 6], ['玉ねぎ', 3], ['トマト', 1]] },
@@ -263,16 +263,23 @@ const MATCH_USERS = [
     want: '留学生と話してみたい', langs: ['日本語', 'English少し'],
     when: { day: 1, time: '19:00' }, place: '学生会館の調理室',
     foods: [['鮭', 1], ['白菜', 3], ['しめじ', 2], ['味噌', 60]] },
-  { id: 'priya', name: 'Priya', flag: '🇮🇳', country: 'インド', type: 'intl', profile: '情報科学院 博士1年', diet: ['vegetarian'],
+  { id: 'priya', avatar: 'carrot', name: 'Priya', flag: '🇮🇳', country: 'インド', type: 'intl', profile: '情報科学院 博士1年', diet: ['vegetarian'],
     want: 'スパイスの使い方を教えたい', langs: ['English OK', 'ベジタリアン'],
     when: { day: 1, time: '12:00' }, place: '国際交流センター',
     foods: [['ヨーグルト', 1], ['きゅうり', 2], ['トマト', 3], ['じゃがいも', 5]] },
-  { id: 'lucas', name: 'Lucas', flag: '🇧🇷', country: 'ブラジル', type: 'intl', profile: '理学部 博士2年', diet: [],
+  { id: 'lucas', avatar: 'original', name: 'Lucas', flag: '🇧🇷', country: 'ブラジル', type: 'intl', profile: '理学部 博士2年', diet: [],
     want: '日本語を練習したい', langs: ['English OK', 'Português'],
     when: { day: 1, time: '19:30' }, place: '寮の共用キッチン',
     foods: [['ひき肉', 1], ['トマト', 2], ['チーズ', 7], ['レタス', 2]] },
 ];
 const MATCH_TYPES = { intl: '留学生', jp: '日本人学生' };
+
+// マイページのアイコン:'flag' は国旗、ほかは icons フォルダの絵柄
+const AVATAR_ICONS = ['original', 'fridge', 'onigiri', 'carrot', 'bowls'];
+function avatarHtml(avatar, flag) {
+  if (AVATAR_ICONS.includes(avatar)) return `<img class="avatar-img" src="icons/icon-${avatar}-180.png" alt="">`;
+  return esc(flag || '🌏');
+}
 
 // デモの相手のプロフィール詳細と、作った料理の履歴
 // meals は [料理名, 絵文字, 何日前, 2人とも写真の公開を許可したか]
@@ -314,7 +321,7 @@ function partnerHtml(p) {
   const tags = [...(p.tags || []), ...(p.favs || []).map((f) => `${f}好き`)];
   return `
     <div class="pf-head">
-      <span class="pf-avatar" aria-hidden="true">${esc(p.flag || '🌏')}</span>
+      <span class="pf-avatar" aria-hidden="true">${avatarHtml(p.avatar, p.flag)}</span>
       <div>
         <p class="pf-name">${esc(p.name)}さん<span class="verified">北大認証済み</span></p>
         <p class="match-profile">${esc(p.sub || '')}</p>
@@ -345,6 +352,7 @@ function openDemoPartner(id) {
   const d = DEMO_PROFILES[id] || { meals: [] };
   openPartnerSheet({
     flag: u.flag,
+    avatar: u.avatar,
     name: u.name,
     sub: `${u.country}・${MATCH_TYPES[u.type]}・${u.profile}`,
     bio: u.want,
@@ -1007,7 +1015,7 @@ function renderMatches() {
       return `
         <li class="match done" data-user="${u.id}">
           <button type="button" class="match-person person-btn" data-action="profile" aria-label="${esc(u.name)}さんのプロフィールを見る">
-            <span class="match-avatar" aria-hidden="true">${u.flag}</span>
+            <span class="match-avatar" aria-hidden="true">${avatarHtml(u.avatar, u.flag)}</span>
             <span class="person-text">
               <span class="match-name">${esc(u.name)}さん<span class="verified">${accepted ? 'マッチ成立' : '返事待ち'}</span></span>
               <span class="match-profile">${esc(ev.menu)}・${formatJP(ev.date)} ${esc(ev.time)}・${esc(ev.place)}</span>
@@ -1032,7 +1040,7 @@ function renderMatches() {
       return `
         <li class="match" data-user="${u.id}">
           <button type="button" class="match-person person-btn" data-action="profile" aria-label="${esc(u.name)}さんのプロフィールを見る">
-            <span class="match-avatar" aria-hidden="true">${u.flag}</span>
+            <span class="match-avatar" aria-hidden="true">${avatarHtml(u.avatar, u.flag)}</span>
             <span class="person-text">
               <span class="match-name">${esc(u.name)}さん<span class="verified">大学認証済み</span></span>
               <span class="match-profile">${esc(u.country)}・${MATCH_TYPES[u.type]}・${esc(u.profile)}${u.cooking ? `・料理:${esc(u.cooking)}` : ''}</span>
