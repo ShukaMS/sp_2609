@@ -9,7 +9,7 @@
   "background_color": "#EAF1F0",
   "theme_color": "#EAF1F0",
   "icons": [
-    { "src": "icons/icon-fridge-180.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "icons/icon-fridge-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icons/icon-original-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icons/icon-original-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }

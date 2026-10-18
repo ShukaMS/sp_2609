@@ -1783,6 +1783,7 @@ $('partyForm').addEventListener('submit', (e) => {
 //  ホーム画面のアイコン(この端末だけの設定)
 // =========================================================
 const APP_ICONS = [
+  { key: 'original', label: 'オリジナル' },
   { key: 'fridge', label: '冷蔵庫くん' },
   { key: 'onigiri', label: 'おにぎり' },
   { key: 'carrot', label: 'にんじん' },
