@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>のこりものクラブ(デモ)</title>
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap">
+  <!-- ホーム画面に追加したときのアイコンと名前(アイコンは記録タブで変えられる) -->
+  <link rel="apple-touch-icon" id="touchIcon" href="icons/icon-original-180.png">
+  <link rel="icon" id="favIcon" type="image/png" href="icons/icon-original-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="のこりもの">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#EAF1F0">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* 発表用デモだけの部品 */
+    .top { position: relative; }
+    .demo-badge {
+      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      padding: 6px 12px; border: 2px solid var(--accent, #1E6E73); border-radius: 999px;
+      background: transparent; color: var(--accent, #1E6E73); font: inherit; font-size: 12px; font-weight: 700; letter-spacing: .08em; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ヘッダー -->
+    <header class="top">
+      <p class="today" id="today"></p>
+      <h1 id="pageTitle">のこりものクラブ</h1>
+      <button type="button" class="demo-badge" id="demoMenu" aria-label="デモの操作">DEMO</button>
+    </header>
+
+    <main>
+      <!-- ========== 冷蔵庫タブ ========== -->
+      <section class="view" id="view-fridge">
+        <div class="sample-note" id="sampleNote" hidden>
+          <span>サンプルの食材を表示しています</span>
+          <button type="button" class="link-btn" id="clearSample">消して始める</button>
+        </div>
+
+        <!-- 期限のまとめ -->
+        <div class="summary">
+          <button type="button" class="stat stat-expired" data-filter="urgent">
+            <span class="stat-num" id="countExpired">0</span>
+            <span class="stat-label">期限切れ</span>
+          </button>
+          <button type="button" class="stat stat-soon" data-filter="urgent">
+            <span class="stat-num" id="countSoon">0</span>
+            <span class="stat-label">3日以内</span>
+          </button>
+          <button type="button" class="stat stat-all" data-filter="all">
+            <span class="stat-num" id="countAll">0</span>
+            <span class="stat-label">ぜんぶ</span>
+          </button>
+        </div>
+
+        <!-- 期限間近の食材 → ごはんマッチへ -->
+        <button type="button" class="match-cta" id="matchCta" hidden>
+          <span class="match-cta-face" id="matchCtaFace" aria-hidden="true"></span>
+          <span class="match-cta-text">
+            <span class="match-cta-label">今日のごはんマッチ</span>
+            <b id="matchCtaTitle"></b>
+            <small id="matchCtaSub"></small>
+          </span>
+          <span class="recipe-cta-arrow" aria-hidden="true">→</span>
+        </button>
+
+        <!-- 期限間近の食材 → レシピへ -->
+        <button type="button" class="recipe-cta" id="recipeCta" hidden>
+          <span id="recipeCtaText"></span>
+          <span class="recipe-cta-arrow" aria-hidden="true">→</span>
+        </button>
+
+        <!-- 絞り込み -->
+        <div class="chips" id="filters" role="tablist" aria-label="保存場所で絞り込み"></div>
+
+        <ul class="food-list" id="foodList"></ul>
+        <div class="empty" id="foodEmpty" hidden>
+          <p class="empty-icon">🧊</p>
+          <p id="foodEmptyText">下の「食材を追加」から登録しましょう</p>
+        </div>
+      </section>
+
+      <!-- ========== レシピタブ ========== -->
+      <section class="view" id="view-recipe" hidden>
+        <p class="lead">冷蔵庫の食材で作れる料理です。期限が近い食材を使うものから並べています。</p>
+        <div class="chips" id="recipeFocus" aria-label="使いたい食材で絞り込み"></div>
+        <ul class="recipe-list" id="recipeList"></ul>
+        <div class="empty" id="recipeEmpty" hidden>
+          <p class="empty-icon">🍳</p>
+          <p id="recipeEmptyText">冷蔵庫に食材を登録すると、作れる料理が表示されます</p>
+        </div>
+        <a class="more-link center-link" id="recipeMore" href="#" target="_blank" rel="noopener" hidden></a>
+      </section>
+
+      <!-- ========== 料理会タブ ========== -->
+      <section class="view" id="view-party" hidden>
+        <!-- 本物のマッチ(Supabase につながっているときだけ表示。中身は cloud.js が作る) -->
+        <div class="stack" id="cloudArea" hidden></div>
+
+        <!-- デモ用のマッチ(ダミーの相手) -->
+        <div class="stack" id="demoArea">
+        <p class="lead" id="matchLead">あなたの期限間近の食材と、相手の食材を合わせて作れる料理から、一緒にごはんを食べる相手を提案します。</p>
+        <div class="chips" id="matchFilter" aria-label="相手で絞り込み"></div>
+        <ul class="match-list" id="matchList"></ul>
+        <div class="empty" id="matchEmpty" hidden>
+          <p class="empty-icon">🤝</p>
+          <p id="matchEmptyText">冷蔵庫に食材を登録すると、一緒にごはんを作れる相手が見つかります</p>
+        </div>
+        <button type="button" class="link-btn center" id="matchMore" hidden>ほかの候補も見る</button>
+        <p class="safety-note">表示されるのは大学のメールアドレスで認証済みの学生だけです。初めての相手とは、学内の共用スペースで会いましょう。</p>
+
+        <div class="party-hero">
+          <p class="party-hero-title">自分で料理会を開く</p>
+          <p class="party-hero-text" id="partyHeroText">期限が近い食材を持ち寄って、留学生や友達と料理会をしませんか?</p>
+          <button type="button" class="btn btn-primary" id="hostBtn">料理会を開く</button>
+        </div>
+        <p class="section-label">キャンパスの料理会</p>
+        <ul class="party-list" id="partyList"></ul>
+        <div class="empty" id="partyEmpty" hidden>
+          <p class="empty-icon">🍲</p>
+          <p>予定されている料理会はまだありません</p>
+        </div>
+        </div>
+      </section>
+
+      <!-- ========== 買い物タブ ========== -->
+      <section class="view" id="view-shopping" hidden>
+        <form class="shop-form" id="shopForm">
+          <label class="sr-only" for="shopInput">買うもの</label>
+          <input type="text" id="shopInput" placeholder="買うものを入力" autocomplete="off">
+          <button type="submit" class="btn btn-primary">追加</button>
+        </form>
+        <ul class="shop-list" id="shopList"></ul>
+        <div class="empty" id="shopEmpty" hidden>
+          <p class="empty-icon">🛒</p>
+          <p>食材を使い切ったら、ここに追加できます</p>
+        </div>
+        <button type="button" class="link-btn center" id="clearDone" hidden>チェック済みを消す</button>
+      </section>
+
+      <!-- ========== 記録タブ ========== -->
+      <section class="view" id="view-stats" hidden>
+        <div class="panel">
+          <p class="panel-title" id="rateTitle">今月の使い切り率</p>
+          <p class="big-rate"><span id="rate">--</span><small>%</small></p>
+          <div class="ratio-bar" id="ratioBar" aria-hidden="true">
+            <span class="ratio-used" id="ratioUsed"></span>
+            <span class="ratio-wasted" id="ratioWasted"></span>
+          </div>
+          <div class="legend">
+            <span class="legend-used">使い切った <b id="usedCount">0</b>件</span>
+            <span class="legend-wasted">捨てた <b id="wastedCount">0</b>件</span>
+          </div>
+          <p class="rate-message" id="rateMessage"></p>
+          <p class="party-stat" id="partyStat" hidden></p>
+        </div>
+
+        <div class="panel" id="rankPanel" hidden>
+          <p class="panel-title">よく捨ててしまう食材</p>
+          <ol class="rank" id="rankList"></ol>
+          <p class="hint">次に買うときは、量を減らすのがおすすめです</p>
+        </div>
+
+        <div class="panel">
+          <p class="panel-title">最近の記録</p>
+          <ul class="log-list" id="logList"></ul>
+        </div>
+
+        <div class="panel">
+          <p class="panel-title">ホーム画面のアイコン</p>
+          <div class="icon-picker" id="iconPicker" role="radiogroup" aria-label="ホーム画面のアイコン"></div>
+          <p class="hint">選んでから「ホーム画面に追加」すると、そのアイコンになります。追加済みの場合は、一度削除して追加し直してください。</p>
+        </div>
+
+        <div class="panel">
+          <p class="panel-title">データ</p>
+          <button type="button" class="row-btn" id="loadSample">サンプルデータを入れる</button>
+          <button type="button" class="row-btn danger" id="resetAll">すべてのデータを削除</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 追加ボタン -->
+  <button type="button" class="fab" id="addBtn">＋ 食材を追加</button>
+
+  <!-- 下のタブ -->
+  <nav class="tabbar" aria-label="画面切り替え">
+    <button type="button" class="tab is-active" data-tab="fridge">
+      <span class="tab-icon"><span class="tab-emoji">🧊</span><i class="tab-badge" id="badgeFridge" hidden></i></span>冷蔵庫
+    </button>
+    <button type="button" class="tab" data-tab="recipe">
+      <span class="tab-icon"><span class="tab-emoji">🍳</span></span>レシピ
+    </button>
+    <button type="button" class="tab" data-tab="party">
+      <span class="tab-icon"><span class="tab-emoji">🤝</span><i class="tab-badge" id="badgeParty" hidden></i></span>マッチ
+    </button>
+    <button type="button" class="tab" data-tab="shopping">
+      <span class="tab-icon"><span class="tab-emoji">🛒</span><i class="tab-badge" id="badgeShop" hidden></i></span>買い物
+    </button>
+    <button type="button" class="tab" data-tab="stats">
+      <span class="tab-icon"><span class="tab-emoji">📊</span></span>記録
+    </button>
+  </nav>
+
+  <!-- ========== 食材の登録シート ========== -->
+  <div class="backdrop" id="sheet" hidden>
+    <form class="sheet" id="foodForm" novalidate>
+      <div class="sheet-head">
+        <button type="button" class="link-btn" id="sheetCancel">キャンセル</button>
+        <h2 id="sheetTitle">食材を追加</h2>
+        <button type="submit" class="link-btn strong">保存</button>
+      </div>
+
+      <div class="sheet-body">
+        <label class="photo" for="photoInput">
+          <img id="photoPreview" alt="" hidden>
+          <span class="photo-empty" id="photoEmpty">📷<small>写真を撮る・選ぶ</small></span>
+        </label>
+        <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+        <button type="button" class="link-btn center" id="photoRemove" hidden>写真を外す</button>
+
+        <label class="field-label" for="nameInput">食材の名前</label>
+        <input type="text" id="nameInput" placeholder="例:牛乳" autocomplete="off">
+
+        <p class="field-label">保存場所</p>
+        <div class="chips wrap" id="locationChips"></div>
+
+        <p class="field-label">数量</p>
+        <div class="stepper">
+          <button type="button" class="step" id="qtyMinus" aria-label="1つ減らす">−</button>
+          <output id="qtyValue">1</output>
+          <button type="button" class="step" id="qtyPlus" aria-label="1つ増やす">＋</button>
+        </div>
+
+        <label class="field-label" for="expiryInput">賞味期限・消費期限</label>
+        <div class="chips wrap" id="quickDays"></div>
+        <div class="date-row">
+          <input type="date" id="expiryInput">
+          <span class="badge" id="expiryBadge"></span>
+        </div>
+
+        <label class="field-label" for="memoInput">メモ(任意)</label>
+        <input type="text" id="memoInput" placeholder="例:開封済み" autocomplete="off">
+
+        <p class="form-error" id="formError" hidden></p>
+
+        <button type="submit" class="btn btn-primary wide" id="submitBtn">冷蔵庫に追加</button>
+        <button type="button" class="link-btn center danger" id="deleteBtn" hidden>この食材を削除</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ========== 料理会を開くシート ========== -->
+  <div class="backdrop" id="partySheet" hidden>
+    <form class="sheet" id="partyForm" novalidate>
+      <div class="sheet-head">
+        <button type="button" class="link-btn" id="partyCancel">キャンセル</button>
+        <h2>料理会を開く</h2>
+        <button type="submit" class="link-btn strong">募集する</button>
+      </div>
+      <div class="sheet-body">
+        <label class="field-label" for="partyTitle">タイトル</label>
+        <input type="text" id="partyTitle" placeholder="例:余り野菜で焼きうどんを作ろう" autocomplete="off">
+
+        <label class="field-label" for="partyMenu">作る料理</label>
+        <input type="text" id="partyMenu" placeholder="例:焼きうどん" autocomplete="off">
+
+        <p class="field-label">日時</p>
+        <div class="date-row">
+          <label class="sr-only" for="partyDate">日付</label>
+          <input type="date" id="partyDate">
+          <label class="sr-only" for="partyTime">時間</label>
+          <input type="time" id="partyTime" value="18:30">
+        </div>
+
+        <p class="field-label">場所</p>
+        <div class="chips wrap" id="placeChips"></div>
+
+        <p class="field-label">定員</p>
+        <div class="stepper">
+          <button type="button" class="step" id="capMinus" aria-label="1人減らす">−</button>
+          <output id="capValue">6</output>
+          <button type="button" class="step" id="capPlus" aria-label="1人増やす">＋</button>
+        </div>
+
+        <p class="field-label">こんな人も参加しやすい(複数選べます)</p>
+        <div class="chips wrap" id="tagChips"></div>
+
+        <p class="field-label">持っていく食材(冷蔵庫から選ぶ)</p>
+        <div class="chips wrap" id="partyFoodChips"></div>
+        <p class="hint" id="partyFoodHint"></p>
+
+        <p class="form-error" id="partyError" hidden></p>
+        <button type="submit" class="btn btn-primary wide">この内容で募集する</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ========== 食材を選ぶシート(料理会に持っていく) ========== -->
+  <div class="backdrop" id="pickSheet" hidden>
+    <div class="sheet">
+      <div class="sheet-head">
+        <button type="button" class="link-btn" id="pickCancel">キャンセル</button>
+        <h2 id="pickTitle">持っていく食材</h2>
+        <span class="head-spacer" aria-hidden="true"></span>
+      </div>
+      <div class="sheet-body">
+        <p class="hint">選んだ食材は、料理会で使い切ったものとして冷蔵庫から外れます。</p>
+        <div class="chips wrap" id="pickChips"></div>
+        <button type="button" class="btn btn-primary wide" id="pickConfirm">この食材を持っていく</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== プロフィール(本物のマッチ用) ========== -->
+  <div class="backdrop" id="profileSheet" hidden>
+    <form class="sheet" id="profileForm" novalidate>
+      <div class="sheet-head">
+        <button type="button" class="link-btn" id="profileCancel">閉じる</button>
+        <h2>プロフィール</h2>
+        <button type="submit" class="link-btn strong">保存</button>
+      </div>
+      <div class="sheet-body">
+        <p class="hint">本名や連絡先は書かないでください。ここに書いた内容は、マッチの相手に表示されます(性別は「表示する」を選んだときだけ)。</p>
+
+        <p class="field-label">マイページのアイコン</p>
+        <div class="icon-picker" id="pfAvatar" role="radiogroup" aria-label="マイページのアイコン"></div>
+        <p class="hint">顔写真の代わりに、絵柄か国旗を使います。</p>
+
+        <label class="field-label" for="pfName">表示名</label>
+        <input type="text" id="pfName" maxlength="30" placeholder="例:しゅうか" autocomplete="off">
+
+        <label class="field-label" for="pfCountry">国・地域</label>
+        <select id="pfCountry" class="select"></select>
+
+        <p class="field-label">区分</p>
+        <div class="chips wrap" id="pfType"></div>
+
+        <label class="field-label" for="pfFaculty">学部・学年</label>
+        <input type="text" id="pfFaculty" maxlength="30" placeholder="例:水産学部 3年" autocomplete="off">
+
+        <label class="field-label" for="pfBio">ひとこと</label>
+        <input type="text" id="pfBio" maxlength="80" placeholder="例:一人ごはんが続いて寂しいです" autocomplete="off">
+
+        <p class="field-label">話せる言語(複数選べます)</p>
+        <div class="chips wrap" id="pfLangs"></div>
+
+        <p class="field-label">食の制限</p>
+        <div class="chips wrap" id="pfDiet"></div>
+
+        <label class="field-label" for="pfAllergy">アレルギー(なければ空欄)</label>
+        <input type="text" id="pfAllergy" maxlength="60" placeholder="例:えび、そば" autocomplete="off">
+        <p class="hint">書いた食材を使う料理は、マッチで提案されなくなります。</p>
+
+        <p class="field-label">性別</p>
+        <div class="chips wrap" id="pfGender"></div>
+        <label class="check-row" for="pfGenderPublic">
+          <input type="checkbox" id="pfGenderPublic">
+          <span>性別をマッチの相手に表示する</span>
+        </label>
+        <label class="check-row" for="pfSameGender">
+          <input type="checkbox" id="pfSameGender">
+          <span>同性の人とだけマッチする</span>
+        </label>
+        <p class="hint" id="pfSameGenderHint">「回答しない」の場合は、同性のみの設定は使えません。性別は非公開のままでも、マッチの判定にだけ使えます。</p>
+
+        <p class="field-label">料理は</p>
+        <div class="chips wrap" id="pfCooking"></div>
+        <p class="hint">料理が苦手な人どうしは、マッチしないようになっています。</p>
+
+        <p class="field-label">好きな料理の系統(複数選べます)</p>
+        <div class="chips wrap" id="pfCuisines"></div>
+
+        <p class="form-error" id="profileError" hidden></p>
+        <button type="submit" class="btn btn-primary wide" id="profileSubmit">保存する</button>
+        <button type="button" class="link-btn center" id="logoutBtn">ログアウト</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ========== 相手のプロフィールと料理の履歴 ========== -->
+  <div class="backdrop" id="partnerSheet" hidden>
+    <div class="sheet">
+      <div class="sheet-head">
+        <button type="button" class="link-btn" id="partnerClose">閉じる</button>
+        <h2>プロフィール</h2>
+        <span class="head-spacer" aria-hidden="true"></span>
+      </div>
+      <div class="sheet-body" id="partnerBody"></div>
+    </div>
+  </div>
+
+  <!-- ごはん写真の選択用(画面の書き換えで消えないよう、ここに1つだけ置く) -->
+  <input type="file" id="mealPhotoInput" accept="image/*" hidden>
+
+  <!-- ========== 確認ダイアログ ========== -->
+  <div class="backdrop center-box" id="dialog" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+      <h2 id="dlgTitle"></h2>
+      <p id="dlgMsg"></p>
+      <div class="dlg-actions" id="dlgActions"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <!-- Supabase(本物のマッチ用)。読み込めなくてもデモモードで動きます -->
+  <!-- 発表用デモ:Supabase の代わりに、ブラウザの中だけで動く架空のサーバーを使う -->
+  <script src="demo-backend.js"></script>
+  <script src="app.js"></script>
+  <script src="cloud.js"></script>
+  <script src="demo-menu.js"></script>
+</body>
+</html>
